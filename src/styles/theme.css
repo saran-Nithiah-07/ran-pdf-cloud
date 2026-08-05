@@ -1,0 +1,456 @@
+/* Design tokens copied directly from RAN-PDF-Editor-Pro's own :root block,
+   so the account/dashboard shell and the editor look like one product. */
+:root {
+  --bg: #eef0f5;
+  --panel: #ffffff;
+  --line: #dfe3ec;
+  --ink: #1c2333;
+  --sub: #697086;
+  --accent: #3457e0;
+  --accent-soft: #e8edff;
+  --danger: #d64545;
+  --ok: #1d9e6f;
+  --shadow: 0 1px 2px rgba(20, 28, 50, 0.08), 0 8px 24px rgba(20, 28, 50, 0.1);
+  --r: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- layout shells ---------- */
+.auth-shell {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 32px 28px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.brand .logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex: none;
+}
+.brand .logo svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+.brand span {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.auth-card h1 {
+  font-size: 20px;
+  margin: 0 0 4px;
+}
+
+.auth-card .sub {
+  color: var(--sub);
+  font-size: 13px;
+  margin: 0 0 22px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sub);
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  transition: border-color 0.15s ease;
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+.field-row .field {
+  flex: 1;
+}
+
+.btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: #2a47c4;
+}
+.btn-primary:disabled {
+  background: #a9b6ee;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.btn-ghost:hover {
+  background: #f5f6fa;
+}
+
+.form-error {
+  background: #fdeceb;
+  border: 1px solid #f4c6c1;
+  color: var(--danger);
+  font-size: 12.5px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.form-success {
+  background: #e8f7f0;
+  border: 1px solid #bfe8d5;
+  color: var(--ok);
+  font-size: 12.5px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  font-size: 12.5px;
+  color: var(--sub);
+}
+
+.stepper {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.stepper .dot {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line);
+}
+.stepper .dot.active {
+  background: var(--accent);
+}
+
+/* ---------- app shell (dashboard) ---------- */
+.app-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+
+.navbar .user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--sub);
+}
+
+.navbar .avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.dash-body {
+  flex: 1;
+  padding: 28px 24px 40px;
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dash-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dash-head h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.dash-head p {
+  color: var(--sub);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.upload-btn:hover {
+  background: #2a47c4;
+}
+.upload-btn input {
+  display: none;
+}
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.file-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.file-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+
+.file-card .icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+}
+
+.file-card .name {
+  font-weight: 600;
+  font-size: 13.5px;
+  word-break: break-word;
+}
+
+.file-card .meta {
+  color: var(--sub);
+  font-size: 12px;
+}
+
+.file-card .actions {
+  display: flex;
+  gap: 5px;
+  margin-top: auto;
+}
+
+.file-card .actions .open-btn,
+.file-card .actions .delete-btn {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.file-card .open-btn {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.file-card .open-btn:hover {
+  background: #dbe3ff;
+}
+
+.file-card .delete-btn {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--sub);
+}
+.file-card .delete-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.file-card .delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.file-card .icon-btn {
+  flex: none;
+  width: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  color: var(--sub);
+  background: none;
+}
+.file-card .icon-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.file-card .icon-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rename-form {
+  margin: -2px 0;
+}
+.rename-input {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.search-bar {
+  position: relative;
+  width: 260px;
+  max-width: 100%;
+}
+.search-bar svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--sub);
+}
+.search-bar input {
+  width: 100%;
+  padding: 9px 12px 9px 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.empty-state {
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--sub);
+}
+.empty-state h3 {
+  color: var(--ink);
+  margin: 12px 0 4px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
