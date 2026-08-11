@@ -1,7 +1,9 @@
 /*
  * editor-bridge.js
  *
- * Stands in for Electron's preload script. RAN-PDF-Editor-Pro.html checks
+ * Stands in for Electron's preload script. pdf-editor.html (originally
+ * delivered by the client as RAN-PDF-Editor-Pro.html, now rebranded to
+ * Pdfinity — markup/logic otherwise untouched) checks
  * `window.desktop` on load and, if present, routes Open/Save through it
  * instead of the browser-download fallback:
  *
@@ -74,7 +76,7 @@
     },
 
     setTitle(label) {
-      document.title = (label ? label + " — " : "") + "RAN PDF Editor Pro";
+      document.title = (label ? label + " — " : "") + "Pdfinity";
     },
 
     // No native app menu in the browser — no-op.

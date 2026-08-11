@@ -70,6 +70,13 @@ self.addEventListener("fetch", (event) => {
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(async () => {
+        // If neither the network nor the cache has this exact request
+        // (e.g. a first-time visit to a URL with query params while
+        // offline), respondWith() requires an actual Response — resolving
+        // to undefined throws "Failed to convert value to 'Response'".
+        const cached = await caches.match(event.request);
+        return cached || new Response("Offline and not cached.", { status: 503 });
+      })
   );
 });

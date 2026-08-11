@@ -246,12 +246,160 @@ to `pdfToDocx.js` / `pdf-to-docx.js`, nothing else in the UI changes.
 
 ---
 
-## What's still not in this pass
+## DOCX editing (Plate.js)
 
-- In-editor file picker / true "Save As" as a new file (still redirects to
-  Dashboard / overwrites in place, per the earlier pass)
-- Deployment config for Vercel
-- Account settings page (change password while logged in, delete account)
+Upload `.docx` files alongside PDFs — the Dashboard shows a type badge on
+each card and routes "Open" to the right editor automatically.
+
+**Stack**: [Plate.js](https://platejs.org) (MIT licensed, no server
+required) + `@platejs/docx-io` for DOCX import/export + `html2pdf.js` for
+the DOCX → PDF export path. Built by hand (not via Plate's shadcn/Tailwind
+CLI kits) since this project uses plain CSS — see `src/lib/docKit.jsx` for
+the plugin/component setup.
+
+- **New page**: `src/pages/DocEditor.jsx` — a real React route
+  (`/doc-editor?fileId=...`), unlike the PDF editor which is a static
+  file. Loads the `.docx` from Storage, imports it into Plate, and saves
+  back to the same Storage path on Save.
+- **Toolbar**: full-featured as of this pass — see "Full editor toolbar"
+  below for the complete list and what was actually verified working.
+- **Both export directions work either way**: PDF files get a "Export to
+  Word" action, DOCX files get a mirrored "Export to PDF" action — same
+  icon slot on the Dashboard card, same floating buttons inside whichever
+  editor is open.
+- **Known limitation**: only modern `.docx` is supported, not the legacy
+  binary `.doc` format — uploading a `.doc` shows a clear error asking
+  for `.docx` instead.
+
+**Before running locally**, apply the new migrations (adds
+`files.file_type`, no new migration needed for the toolbar expansion —
+tables/images/links/colors are stored as part of the same DOCX blob):
+```bash
+npx supabase db push
+```
+
+**This was verified working**, not just written and hoped for — a
+headless-browser test round-tripped a real `.docx` (heading, bold,
+italic, subheading, paragraph) through import → render → toolbar
+toggling → DOCX export → PDF export, and confirmed the structure and
+formatting survived intact at every step, with zero console errors. What
+that test *couldn't* cover (no real Supabase session available in that
+environment) is the live Dashboard → Storage → editor → Save round trip —
+worth running through deliberately on your first local test: upload a
+`.docx`, open it, make an edit, hit Save, close it, reopen it, and confirm
+your edit persisted.
+
+### Full editor toolbar (Tier 1–3)
+Expanded from the original minimal 4-button toolbar to a genuinely
+full-featured one, all hand-built with plain CSS (no Tailwind/shadcn) to
+match Pdfinity's own look:
+
+- **Marks**: bold, italic, underline, strikethrough, code
+- **Blocks**: H1–H3, blockquote, bulleted/numbered lists
+- **Layout**: text align (left/center/right/justify), indent/outdent
+- **Rich content**: text color, highlight, links, tables (insert +
+  editable cells), images (uploaded to Supabase Storage, 5-year signed
+  URL), a small emoji picker
+
+**Not included**: checklists (Plate's list model doesn't map cleanly onto
+a simple toggle), comments (needs a whole backend data model), AI
+(explicitly out of scope).
+
+A second, more thorough headless-browser pass exercised every one of the
+above on a real document — including nested/composed marks across a
+heading, a link, table cells, and body text that already had bold/italic
+applied — then round-tripped it through both DOCX and PDF export, with
+zero console errors. One real bug was caught and fixed this way: the
+table renderer produced invalid HTML (`<tr>` with no `<tbody>`), which
+React was correctly warning about; fixed by rendering the table's outer
+tag manually instead of through the usual component wrapper.
+
+**The one thing that testing couldn't cover**: real image uploads through
+an actual Supabase session (no live login available in that test
+environment). The upload code path itself (`uploadImage` → Storage →
+signed URL) was verified using a mock that skips the real network call —
+worth specifically testing image insertion on your first local pass.
+
+## Admin panel
+
+Replaces public self-signup entirely — new users are invited by an admin
+(name, email, mobile) rather than signing themselves up. Logging in as an
+admin redirects straight to `/admin` instead of `/dashboard`; everyone
+else is redirected to `/dashboard` and can't reach `/admin` even by typing
+the URL directly (`AdminRoute` checks this server-side via their actual
+role, not just by hiding the link).
+
+### Setup — required before this works at all
+
+**1. Apply the new migration** (adds `role`/`status`/`mobile_number`/
+`email` to `profiles`, plus RLS so an admin can see/update every profile,
+not just their own):
+```bash
+npx supabase db push
+```
+
+**2. Deploy the two new Edge Functions:**
+```bash
+npx supabase functions deploy admin-invite-user
+npx supabase functions deploy admin-delete-user
+```
+Both need the same `SUPABASE_SERVICE_ROLE_KEY` secret the purge function
+already uses.
+
+**3. Create your first admin.** There's no signup flow left to create one
+through, so promote an existing account directly in Supabase's SQL
+Editor:
+```sql
+update public.profiles set role = 'admin' where username = 'your_existing_username';
+```
+Log in with that account afterward — you'll land on `/admin` instead of
+`/dashboard`.
+
+### How invites actually work
+
+Admin fills in Name/Email/Mobile in the panel → `admin-invite-user` runs
+server-side (needs the service-role key to create an auth user and bypass
+RLS to insert their profile) → Supabase sends an invite email → the
+person clicks it, lands on `/accept-invite` already signed into a
+temporary session (same mechanism as password reset), sets a real
+password, and from then on logs in normally with the username the invite
+flow auto-generated for them from their email (e.g. `jane.doe@...` →
+`janedoe4821`).
+
+**One thing to check**: Supabase's default "Invite user" email template
+should already route through the custom SMTP (Resend) set up earlier for
+password reset — same account, same sender restriction applies (only
+delivers to your Resend account's own email until you verify a real
+domain there).
+
+### Deactivate → delete lifecycle
+
+Deleting a user is only allowed once they're deactivated — enforced both
+in the UI (Delete is disabled otherwise) and again inside
+`admin-delete-user` itself, so it can't be bypassed by calling the
+function directly. Deleting cascades: every file the user uploaded is
+removed from Storage, their `files` rows are deleted, their `profiles`
+row is deleted, and finally their actual Supabase Auth account is
+deleted.
+
+### What wasn't tested here
+
+Everything in this section depends on a live Supabase project — sending a
+real invite email, the temporary invite session, and the full
+invite→accept→login round trip need your real environment. What I did
+verify: the pages render cleanly with zero console errors (Login with the
+signup link genuinely gone, `/accept-invite` renders correctly, `/signup`
+now redirects straight to `/login`). Worth testing end to end on your
+first pass: invite yourself with a second email address, accept the
+invite, log in, then from the admin account deactivate and delete that
+test user.
+
+## Still outstanding
+
+- In-editor file picker / true "Save As" as a new file in the PDF editor
+  (still redirects to Dashboard / overwrites in place)
+- Account settings page (change password while logged in)
 - Upload size limits / friendlier error messaging for huge files
+- Checklists in the DOCX editor (skipped — see the DOCX editing section)
 
 Let me know what to build next.

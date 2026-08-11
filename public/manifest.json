@@ -1,12 +1,12 @@
 {
-  "name": "RAN PDF Editor Pro",
-  "short_name": "RAN PDF",
-  "description": "Edit, merge, sign, and protect PDFs — anywhere, from any device.",
+  "name": "Pdfinity",
+  "short_name": "Pdfinity",
+  "description": "Infinite PDF editing — edit, merge, sign, and protect PDFs, anywhere, from any device.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
   "background_color": "#eef0f5",
-  "theme_color": "#3457e0",
+  "theme_color": "#c81026",
   "orientation": "any",
   "icons": [
     {

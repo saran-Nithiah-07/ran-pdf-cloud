@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
     }
     supabase
       .from("profiles")
-      .select("full_name, username")
+      .select("full_name, username, role, status")
       .eq("id", session.user.id)
       .single()
       .then(({ data }) => setProfile(data ?? null));
@@ -38,6 +38,7 @@ export function AuthProvider({ children }) {
     session,
     user: session?.user ?? null,
     profile,
+    isAdmin: profile?.role === "admin",
     loading: session === undefined,
     signOut: () => supabase.auth.signOut()
   };

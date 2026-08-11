@@ -11,8 +11,8 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const justSignedUp = location.state?.justSignedUp;
   const justReset = location.state?.justReset;
+  const justInvited = location.state?.justInvited;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -40,7 +40,7 @@ export default function Login() {
         return;
       }
 
-      const { error: signInErr } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
         email,
         password
       });
@@ -50,7 +50,27 @@ export default function Login() {
         return;
       }
 
-      navigate("/dashboard");
+      const { data: profile, error: profileErr } = await supabase
+        .from("profiles")
+        .select("role, status")
+        .eq("id", signInData.user.id)
+        .single();
+
+      if (profileErr || !profile) {
+        setError("Couldn't load your account. Contact your administrator.");
+        await supabase.auth.signOut();
+        setLoading(false);
+        return;
+      }
+
+      if (profile.status === "inactive") {
+        await supabase.auth.signOut();
+        setError("Your account has been deactivated. Contact your administrator.");
+        setLoading(false);
+        return;
+      }
+
+      navigate(profile.role === "admin" ? "/admin" : "/dashboard");
     } catch (err) {
       setError(err.message || "Something went wrong logging in.");
     } finally {
@@ -65,14 +85,14 @@ export default function Login() {
         <h1>Log in</h1>
         <p className="sub">Pick up where you left off.</p>
 
-        {justSignedUp && (
-          <div className="form-success">
-            Account created — log in to continue.
-          </div>
-        )}
         {justReset && (
           <div className="form-success">
             Password reset — log in with your new password.
+          </div>
+        )}
+        {justInvited && (
+          <div className="form-success">
+            Password set — log in to continue.
           </div>
         )}
         {error && <div className="form-error">{error}</div>}
@@ -109,9 +129,6 @@ export default function Login() {
 
         <div className="auth-links">
           <Link to="/forgot-password">Forgot password?</Link>
-          <span>
-            New here? <Link to="/signup">Create an account</Link>
-          </span>
         </div>
       </div>
     </div>

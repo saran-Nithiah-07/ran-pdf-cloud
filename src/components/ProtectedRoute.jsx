@@ -7,7 +7,7 @@ export default function ProtectedRoute({ children }) {
   if (loading) {
     return (
       <div className="auth-shell">
-        <span className="spinner" style={{ borderTopColor: "#3457e0" }} />
+        <span className="spinner" style={{ borderTopColor: "#c81026" }} />
       </div>
     );
   }

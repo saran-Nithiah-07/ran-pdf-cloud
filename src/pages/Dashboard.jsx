@@ -1,17 +1,34 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/useAuth";
-import { convertPdfBytesToDocx, downloadBlob } from "../lib/pdfToDocx";
+import { convertPdfBytesToDocx, downloadBlob as downloadPdfLibBlob } from "../lib/pdfToDocx";
+import {
+  docxBytesToPlateValue,
+  plateValueToPdfBlob,
+  downloadBlob as downloadDocBlob
+} from "../lib/docConversion";
 import Navbar from "../components/Navbar";
 import FileCard from "../components/FileCard";
+
+const DOCX_MIME =
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 function makeStoragePath(userId, fileId, fileName) {
   const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
   return `${userId}/${fileId}-${safeName}`;
 }
 
+function detectFileType(file) {
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".pdf")) return "pdf";
+  if (name.endsWith(".docx")) return "docx";
+  return null; // .doc (legacy) and anything else — rejected at upload
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -41,10 +58,6 @@ export default function Dashboard() {
   }, [user?.id]);
 
   useEffect(() => {
-    // Returning to this page via the browser's back/forward cache (e.g.
-    // after navigating to the editor and back) restores the exact prior
-    // in-memory state instead of re-running effects — including a file
-    // list from before a delete. Force a fresh fetch whenever that happens.
     function handlePageShow(e) {
       if (e.persisted && user) loadFiles();
     }
@@ -64,8 +77,13 @@ export default function Dashboard() {
     e.target.value = "";
     if (!file) return;
 
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      setError("Only PDF files are supported.");
+    const fileType = detectFileType(file);
+    if (!fileType) {
+      setError(
+        file.name.toLowerCase().endsWith(".doc")
+          ? "Legacy .doc files aren't supported — please save it as .docx first."
+          : "Only PDF and .docx files are supported."
+      );
       return;
     }
 
@@ -74,10 +92,11 @@ export default function Dashboard() {
     try {
       const fileId = crypto.randomUUID();
       const storagePath = makeStoragePath(user.id, fileId, file.name);
+      const contentType = fileType === "pdf" ? "application/pdf" : DOCX_MIME;
 
       const { error: uploadErr } = await supabase.storage
         .from("user-files")
-        .upload(storagePath, file, { contentType: "application/pdf", upsert: false });
+        .upload(storagePath, file, { contentType, upsert: false });
       if (uploadErr) throw uploadErr;
 
       const { error: insertErr } = await supabase.from("files").insert({
@@ -85,7 +104,8 @@ export default function Dashboard() {
         user_id: user.id,
         file_name: file.name,
         storage_path: storagePath,
-        size_bytes: file.size
+        size_bytes: file.size,
+        file_type: fileType
       });
       if (insertErr) throw insertErr;
 
@@ -98,7 +118,11 @@ export default function Dashboard() {
   }
 
   function handleOpen(file) {
-    window.location.href = `/editor/pdf-editor.html?fileId=${file.id}`;
+    if (file.file_type === "docx") {
+      navigate(`/doc-editor?fileId=${file.id}`);
+    } else {
+      window.location.href = `/editor/pdf-editor.html?fileId=${file.id}`;
+    }
   }
 
   async function handleDelete(file) {
@@ -111,11 +135,6 @@ export default function Dashboard() {
         .remove([file.storage_path]);
       if (storageErr) throw storageErr;
 
-      // .select() after delete returns the deleted row(s) — if that comes
-      // back empty, the delete matched nothing (e.g. an RLS mismatch)
-      // without Supabase treating it as an error. Surfacing that here
-      // instead of silently doing nothing is what would otherwise look
-      // exactly like "the deleted file keeps coming back."
       const { data: deletedRows, error: deleteErr } = await supabase
         .from("files")
         .delete()
@@ -129,7 +148,7 @@ export default function Dashboard() {
       setFiles((prev) => prev.filter((f) => f.id !== file.id));
     } catch (err) {
       setError(err.message || "Couldn't delete that file.");
-      await loadFiles(); // resync with the server so stale rows don't linger either way
+      await loadFiles();
     } finally {
       setDeletingId(null);
     }
@@ -137,7 +156,6 @@ export default function Dashboard() {
 
   async function handleRename(file, newName) {
     setError("");
-    // Optimistic update — rename is low-risk and users expect it to feel instant.
     setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, file_name: newName } : f)));
     const { error: renameErr } = await supabase
       .from("files")
@@ -149,7 +167,8 @@ export default function Dashboard() {
     }
   }
 
-  async function handleDownloadPdf(file) {
+  // "Download original" — raw bytes, no conversion, for either file type.
+  async function handleDownloadOriginal(file) {
     setError("");
     setDownloadingId(file.id);
     try {
@@ -157,7 +176,7 @@ export default function Dashboard() {
         .from("user-files")
         .download(file.storage_path);
       if (downloadErr) throw downloadErr;
-      downloadBlob(blobData, file.file_name);
+      downloadPdfLibBlob(blobData, file.file_name);
     } catch (err) {
       setError(err.message || "Couldn't download that file.");
     } finally {
@@ -165,7 +184,8 @@ export default function Dashboard() {
     }
   }
 
-  async function handleExportWord(file) {
+  // "Convert & export" — PDF files export as Word, DOCX files export as PDF.
+  async function handleConvertExport(file) {
     setError("");
     setExportingId(file.id);
     try {
@@ -175,11 +195,18 @@ export default function Dashboard() {
       if (downloadErr) throw downloadErr;
 
       const bytes = new Uint8Array(await blobData.arrayBuffer());
-      const docxBlob = await convertPdfBytesToDocx(bytes);
-      const baseName = file.file_name.replace(/\.pdf$/i, "");
-      downloadBlob(docxBlob, `${baseName}.docx`);
+      const baseName = file.file_name.replace(/\.(pdf|docx)$/i, "");
+
+      if (file.file_type === "pdf") {
+        const docxBlob = await convertPdfBytesToDocx(bytes);
+        downloadPdfLibBlob(docxBlob, `${baseName}.docx`);
+      } else {
+        const value = await docxBytesToPlateValue(bytes.buffer);
+        const pdfBlob = await plateValueToPdfBlob(value, baseName);
+        downloadDocBlob(pdfBlob, `${baseName}.pdf`);
+      }
     } catch (err) {
-      setError(err.message || "Couldn't convert that file to Word.");
+      setError(err.message || "Couldn't convert that file.");
     } finally {
       setExportingId(null);
     }
@@ -219,10 +246,15 @@ export default function Dashboard() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 3v12m0-12 4 4m-4-4-4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
                   </svg>
-                  Upload PDF
+                  Upload file
                 </>
               )}
-              <input type="file" accept="application/pdf,.pdf" onChange={handleUpload} disabled={uploading} />
+              <input
+                type="file"
+                accept="application/pdf,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={handleUpload}
+                disabled={uploading}
+              />
             </label>
           </div>
         </div>
@@ -234,7 +266,7 @@ export default function Dashboard() {
         ) : files.length === 0 ? (
           <div className="empty-state">
             <h3>No files yet</h3>
-            <p>Upload a PDF to start editing.</p>
+            <p>Upload a PDF or Word document to start editing.</p>
           </div>
         ) : visibleFiles.length === 0 ? (
           <div className="empty-state">
@@ -250,8 +282,8 @@ export default function Dashboard() {
                 onOpen={handleOpen}
                 onDelete={handleDelete}
                 onRename={handleRename}
-                onExportWord={handleExportWord}
-                onDownloadPdf={handleDownloadPdf}
+                onExportWord={handleConvertExport}
+                onDownloadPdf={handleDownloadOriginal}
                 deleting={deletingId === file.id}
                 exporting={exportingId === file.id}
                 downloading={downloadingId === file.id}

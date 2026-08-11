@@ -6,8 +6,8 @@
   --line: #dfe3ec;
   --ink: #1c2333;
   --sub: #697086;
-  --accent: #3457e0;
-  --accent-soft: #e8edff;
+  --accent: #c81026;
+  --accent-soft: #ffe3e3;
   --danger: #d64545;
   --ok: #1d9e6f;
   --shadow: 0 1px 2px rgba(20, 28, 50, 0.08), 0 8px 24px rgba(20, 28, 50, 0.1);
@@ -153,7 +153,7 @@ a:hover {
   color: #fff;
 }
 .btn-primary:hover {
-  background: #2a47c4;
+  background: #a80d1f;
 }
 .btn-primary:disabled {
   background: #a9b6ee;
@@ -288,7 +288,7 @@ a:hover {
   font-size: 13.5px;
 }
 .upload-btn:hover {
-  background: #2a47c4;
+  background: #a80d1f;
 }
 .upload-btn input {
   display: none;
@@ -356,7 +356,7 @@ a:hover {
   color: var(--accent);
 }
 .file-card .open-btn:hover {
-  background: #dbe3ff;
+  background: #ffd0d0;
 }
 
 .file-card .delete-btn {
@@ -453,4 +453,392 @@ a:hover {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ---------- file type badge ---------- */
+.type-badge {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.type-badge.pdf {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.type-badge.docx {
+  background: #e3ecff;
+  color: #2952cc;
+}
+
+/* ---------- doc editor (Plate) ---------- */
+.doc-editor-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.doc-editor-error {
+  margin: auto;
+  text-align: center;
+  color: var(--sub);
+}
+.doc-editor-error p {
+  margin-bottom: 14px;
+}
+
+.doc-topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: nowrap;
+}
+
+.doc-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.doc-topbar-left .logo svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+.doc-filename {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* The formatting toolbar scrolls horizontally on its own — the logo/
+   filename on the left and Save/Close on the right always stay visible,
+   only this middle section scrolls when there isn't room for every
+   button. */
+.doc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
+}
+.doc-toolbar::-webkit-scrollbar {
+  height: 5px;
+}
+.doc-toolbar::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+.doc-toolbar .tb,
+.doc-toolbar .doc-toolbar-sep,
+.doc-toolbar .doc-popover-wrap {
+  flex-shrink: 0;
+}
+
+.doc-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  margin: 0 4px;
+}
+
+.doc-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.doc-status {
+  font-size: 12px;
+  color: var(--ok);
+  font-weight: 600;
+}
+
+/* .tb button, reused verbatim from the PDF editor's own class name so
+   both editors share one visual language */
+.doc-editor-shell .tb {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.doc-editor-shell .tb:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.doc-editor-shell .tb.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.doc-editor-shell .tb.primary:hover {
+  background: #a80d1f;
+}
+.doc-editor-shell .tb:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.doc-page-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 32px 20px 80px;
+  overflow-y: auto;
+}
+
+.doc-page {
+  width: 100%;
+  max-width: 760px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 56px 64px;
+  min-height: 900px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink);
+  outline: none;
+}
+
+.doc-h1 {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0.6em 0 0.3em;
+}
+.doc-h2 {
+  font-size: 21px;
+  font-weight: 800;
+  margin: 0.6em 0 0.3em;
+}
+.doc-h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0.6em 0 0.3em;
+}
+.doc-blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 0.8em 0;
+  padding: 4px 16px;
+  color: var(--sub);
+  font-style: italic;
+}
+
+.doc-code {
+  background: #f1f2f6;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: "Courier New", monospace;
+  font-size: 0.92em;
+}
+
+.doc-link {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Indent-list model: markers are CSS-driven since list items are plain
+   blocks carrying listStyleType/indent, not real nested <ul>/<li>. */
+.doc-list-item {
+  position: relative;
+  padding-left: 26px;
+  margin: 0.2em 0;
+}
+.doc-list-bulleted::before {
+  content: "•";
+  position: absolute;
+  left: 8px;
+  color: var(--sub);
+}
+.doc-list-ordered {
+  counter-increment: doc-list-counter;
+}
+.doc-list-ordered::before {
+  content: counter(doc-list-counter) ".";
+  position: absolute;
+  left: 4px;
+  color: var(--sub);
+}
+.doc-page {
+  counter-reset: doc-list-counter;
+}
+
+.doc-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+.doc-td,
+.doc-th {
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  min-width: 60px;
+}
+.doc-th {
+  background: var(--bg);
+  font-weight: 700;
+}
+
+.doc-image-wrap {
+  margin: 1em 0;
+}
+.doc-image {
+  max-width: 100%;
+  border-radius: 6px;
+  display: block;
+}
+
+/* ---------- popovers (color/highlight/emoji) ---------- */
+.doc-popover-wrap {
+  position: relative;
+  display: inline-block;
+}
+.doc-popover {
+  position: fixed;
+  z-index: 200;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 8px;
+  display: flex;
+  gap: 6px;
+}
+.doc-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  padding: 0;
+}
+.doc-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  width: 180px;
+}
+.doc-emoji-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.doc-emoji-btn:hover {
+  background: var(--bg);
+}
+
+/* ---------- admin panel ---------- */
+.admin-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.admin-filter-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--sub);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.admin-filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.admin-table-wrap {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.admin-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--bg);
+  color: var(--sub);
+  font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--line);
+}
+.admin-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+.admin-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.admin-text-btn {
+  width: auto;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+/* ---------- modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 35, 51, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 20px;
+}
+.modal-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 28px;
+  width: 100%;
+  max-width: 400px;
+}
+.modal-card h2 {
+  margin: 0 0 4px;
+  font-size: 19px;
+}
+.modal-card .sub {
+  color: var(--sub);
+  font-size: 13px;
+  margin: 0 0 18px;
 }

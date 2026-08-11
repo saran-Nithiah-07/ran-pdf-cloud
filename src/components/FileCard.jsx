@@ -18,6 +18,7 @@ function formatDate(iso) {
 export default function FileCard({ file, onOpen, onDelete, onRename, onExportWord, onDownloadPdf, deleting, exporting, downloading }) {
   const [renaming, setRenaming] = useState(false);
   const [draftName, setDraftName] = useState(file.file_name);
+  const isDocx = file.file_type === "docx";
 
   function startRename() {
     setDraftName(file.file_name);
@@ -42,7 +43,7 @@ export default function FileCard({ file, onOpen, onDelete, onRename, onExportWor
 
   return (
     <div className="file-card">
-      <div className="icon">
+      <div className="icon" style={isDocx ? { background: "#e3ecff", color: "#2952cc" } : undefined}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
           <path d="M14 2v6h6" />
@@ -63,6 +64,9 @@ export default function FileCard({ file, onOpen, onDelete, onRename, onExportWor
       ) : (
         <div className="name" title={file.file_name} onDoubleClick={startRename}>
           {file.file_name}
+          <span className={`type-badge ${isDocx ? "docx" : "pdf"}`}>
+            {isDocx ? "DOCX" : "PDF"}
+          </span>
         </div>
       )}
 
@@ -81,7 +85,7 @@ export default function FileCard({ file, onOpen, onDelete, onRename, onExportWor
         </button>
         <button
           className="icon-btn"
-          title="Download PDF"
+          title={isDocx ? "Download DOCX" : "Download PDF"}
           onClick={() => onDownloadPdf(file)}
           disabled={downloading}
         >
@@ -96,7 +100,7 @@ export default function FileCard({ file, onOpen, onDelete, onRename, onExportWor
         </button>
         <button
           className="icon-btn"
-          title="Export to Word"
+          title={isDocx ? "Export to PDF" : "Export to Word"}
           onClick={() => onExportWord(file)}
           disabled={exporting}
         >
@@ -104,7 +108,7 @@ export default function FileCard({ file, onOpen, onDelete, onRename, onExportWor
             <span className="spinner" style={{ borderTopColor: "var(--accent)" }} />
           ) : (
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 3v12m0-12 4 4m-4-4-4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+              <path d="M17 8l4 4m0 0-4 4m4-4H3" />
             </svg>
           )}
         </button>
