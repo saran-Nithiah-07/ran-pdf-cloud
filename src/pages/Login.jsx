@@ -19,29 +19,37 @@ export default function Login() {
     setError("");
 
     if (!username.trim() || !password) {
-      setError("Enter your username and password.");
+      setError("Enter your username or email, and your password.");
       return;
     }
 
     setLoading(true);
     try {
-      // Login is by username, but Supabase Auth signs in by email — so we
-      // resolve username -> email first via a security-definer function
-      // that only exposes the email match, not the whole profiles table.
-      const { data: email, error: lookupErr } = await supabase.rpc(
-        "get_email_by_username",
-        { lookup_username: username.trim() }
-      );
-      if (lookupErr) throw lookupErr;
+      const input = username.trim();
+      let loginEmail;
 
-      if (!email) {
-        setError("Invalid username or password.");
-        setLoading(false);
-        return;
+      if (input.includes("@")) {
+        // Looks like an email — use it directly, no lookup needed.
+        loginEmail = input;
+      } else {
+        // Otherwise resolve username -> email via a security-definer
+        // function that only exposes the email match, not the whole
+        // profiles table.
+        const { data: resolvedEmail, error: lookupErr } = await supabase.rpc(
+          "get_email_by_username",
+          { lookup_username: input }
+        );
+        if (lookupErr) throw lookupErr;
+        if (!resolvedEmail) {
+          setError("Invalid username or password.");
+          setLoading(false);
+          return;
+        }
+        loginEmail = resolvedEmail;
       }
 
       const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
-        email,
+        email: loginEmail,
         password
       });
       if (signInErr) {
@@ -99,14 +107,14 @@ export default function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Username or email</label>
             <input
               id="username"
               type="text"
               autoComplete="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="janedoe"
+              placeholder="janedoe or jane@example.com"
             />
           </div>
 

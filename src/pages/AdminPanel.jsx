@@ -3,13 +3,13 @@ import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/useAuth";
 import Navbar from "../components/Navbar";
 
-const FILTERS = ["active", "inactive", "all"];
+const FILTERS = ["all", "active", "inactive"];
 
 export default function AdminPanel() {
   const { profile } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("active");
+  const [filter, setFilter] = useState("all");
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState(null);
 

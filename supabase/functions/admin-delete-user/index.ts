@@ -11,7 +11,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, content-type"
+  "Access-Control-Allow-Headers": "authorization, content-type, x-client-info, apikey"
 };
 
 const BUCKET = "user-files";
@@ -86,6 +86,19 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Delete the actual auth account FIRST. If this fails, stop here —
+    // nothing else has been touched yet, so it's safe to just retry.
+    // Doing this step last (as an earlier version of this function did)
+    // could leave a "zombie" auth account behind if it failed after the
+    // profile/files were already gone, with no easy way to notice.
+    const { error: deleteAuthErr } = await admin.auth.admin.deleteUser(userId);
+    if (deleteAuthErr) {
+      return new Response(JSON.stringify({ error: deleteAuthErr.message }), {
+        status: 400,
+        headers: corsHeaders
+      });
+    }
+
     // 1. Storage: remove every file under this user's folder.
     const { data: files } = await admin
       .from("files")
@@ -95,9 +108,9 @@ Deno.serve(async (req) => {
       const paths = files.map((f) => f.storage_path);
       const { error: storageErr } = await admin.storage.from(BUCKET).remove(paths);
       if (storageErr) {
-        // Log and continue, same reasoning as the 90-day purge function —
-        // a leftover Storage object is recoverable manually; stopping the
-        // whole deletion because of it is worse.
+        // Log and continue — the auth account is already gone at this
+        // point, so there's no user left to retry the whole operation
+        // for. A leftover Storage object is recoverable manually.
         console.error("Storage cleanup error:", storageErr.message);
       }
     }
@@ -107,15 +120,6 @@ Deno.serve(async (req) => {
 
     // 3. Profile row.
     await admin.from("profiles").delete().eq("id", userId);
-
-    // 4. The actual auth account.
-    const { error: deleteAuthErr } = await admin.auth.admin.deleteUser(userId);
-    if (deleteAuthErr) {
-      return new Response(JSON.stringify({ error: deleteAuthErr.message }), {
-        status: 400,
-        headers: corsHeaders
-      });
-    }
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
