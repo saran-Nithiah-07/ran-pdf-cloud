@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import Logo from "../components/Logo";
+import AuthLayout from "../components/AuthLayout";
 
 // Landed on after clicking the invite email link — Supabase's invite flow
 // signs the person into a temporary session automatically (same
@@ -45,43 +46,44 @@ export default function AcceptInvite() {
   }
 
   return (
-    <div className="auth-shell">
-      <div className="auth-card">
-        <Logo />
-        <h1>Welcome to Pdfinity</h1>
-        <p className="sub">Set a password to finish creating your account.</p>
+    <AuthLayout
+      headline="You've been invited."
+      tagline="One last step — set a password and your account is ready."
+    >
+      <Logo />
+      <h1>Welcome to Pdfinity</h1>
+      <p className="sub">Set a password to finish creating your account.</p>
 
-        {error && <div className="form-error">{error}</div>}
+      {error && <div className="form-error">{error}</div>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 8 characters"
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="confirmPassword">Confirm password</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repeat password"
-            />
-          </div>
+      <form onSubmit={handleSubmit}>
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="At least 8 characters"
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="confirmPassword">Confirm password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Repeat password"
+          />
+        </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? <span className="spinner" /> : "Set password & continue"}
-          </button>
-        </form>
-      </div>
-    </div>
+        <button className="btn btn-primary" type="submit" disabled={loading}>
+          {loading ? <span className="spinner" /> : "Set password & continue"}
+        </button>
+      </form>
+    </AuthLayout>
   );
 }

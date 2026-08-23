@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import AuthLayout from "../components/AuthLayout";
 import Logo from "../components/Logo";
 
 export default function Login() {
@@ -87,58 +88,59 @@ export default function Login() {
   }
 
   return (
-    <div className="auth-shell">
-      <div className="auth-card">
-        <Logo />
-        <h1>Log in</h1>
-        <p className="sub">Pick up where you left off.</p>
+    <AuthLayout
+      headline="Infinite editing, one document at a time."
+      tagline="Edit, merge, sign, and protect PDFs and Word documents — anywhere, from any device."
+    >
+      <Logo />
+      <h1>Log in</h1>
+      <p className="sub">Pick up where you left off.</p>
 
-        {justReset && (
-          <div className="form-success">
-            Password reset — log in with your new password.
-          </div>
-        )}
-        {justInvited && (
-          <div className="form-success">
-            Password set — log in to continue.
-          </div>
-        )}
-        {error && <div className="form-error">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="username">Username or email</label>
-            <input
-              id="username"
-              type="text"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="janedoe or jane@example.com"
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your password"
-            />
-          </div>
-
-          <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? <span className="spinner" /> : "Log in"}
-          </button>
-        </form>
-
-        <div className="auth-links">
-          <Link to="/forgot-password">Forgot password?</Link>
+      {justReset && (
+        <div className="form-success">
+          Password reset — log in with your new password.
         </div>
+      )}
+      {justInvited && (
+        <div className="form-success">
+          Password set — log in to continue.
+        </div>
+      )}
+      {error && <div className="form-error">{error}</div>}
+
+      <form onSubmit={handleSubmit}>
+        <div className="field">
+          <label htmlFor="username">Username or email</label>
+          <input
+            id="username"
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="janedoe or jane@example.com"
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Your password"
+          />
+        </div>
+
+        <button className="btn btn-primary" type="submit" disabled={loading}>
+          {loading ? <span className="spinner" /> : "Log in"}
+        </button>
+      </form>
+
+      <div className="auth-links">
+        <Link to="/forgot-password">Forgot password?</Link>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

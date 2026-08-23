@@ -52,22 +52,190 @@ a:hover {
 }
 
 /* ---------- layout shells ---------- */
+/* ---------- auth: two-column split layout ---------- */
 .auth-shell {
   min-height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+}
+
+/* Left: brand panel with the signature "floating pages + infinity"
+   illustration. Hidden below tablet width — the form is the only thing
+   that matters on a small screen. */
+.auth-brand-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+  background: linear-gradient(160deg, #ff5252 0%, #c81026 46%, #4a0812 100%);
+  color: #fff;
+  overflow: hidden;
+}
+@media (max-width: 880px) {
+  .auth-brand-panel {
+    display: none;
+  }
+  .auth-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+.auth-brand-panel .brand span {
+  color: #fff;
+  font-size: 16px;
+}
+.auth-brand-panel .brand .logo svg rect {
+  fill: rgba(255, 255, 255, 0.16);
+}
+.auth-brand-panel .brand .logo svg path {
+  stroke: #fff;
+}
+
+.auth-brand-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 360px;
+}
+.auth-brand-copy h2 {
+  font-size: 30px;
+  line-height: 1.25;
+  font-weight: 800;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+.auth-brand-copy p {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
+}
+
+.auth-brand-foot {
+  position: relative;
+  z-index: 2;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Signature illustration: layered translucent "pages" behind a large
+   infinity mark, each drifting on its own slow cycle. Respects
+   prefers-reduced-motion. */
+.auth-illustration {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.auth-page {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  backdrop-filter: blur(1px);
+  animation: auth-float 9s ease-in-out infinite;
+}
+.auth-page::before,
+.auth-page::after {
+  content: "";
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.18);
+}
+.auth-page::before {
+  top: 22%;
+}
+.auth-page::after {
+  top: 34%;
+}
+.auth-page-1 {
+  width: 150px;
+  height: 190px;
+  right: 14%;
+  top: 12%;
+  transform: rotate(-8deg);
+  animation-delay: 0s;
+}
+.auth-page-2 {
+  width: 130px;
+  height: 165px;
+  right: 30%;
+  top: 30%;
+  transform: rotate(6deg);
+  animation-delay: 1.4s;
+}
+.auth-page-3 {
+  width: 110px;
+  height: 140px;
+  right: 8%;
+  top: 46%;
+  transform: rotate(4deg);
+  animation-delay: 2.8s;
+}
+.auth-infinity {
+  position: absolute;
+  right: 6%;
+  bottom: 8%;
+  width: 220px;
+  height: 220px;
+  opacity: 0.14;
+}
+@keyframes auth-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-14px) rotate(var(--r, 0deg));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-page {
+    animation: none;
+  }
+}
+
+/* Right: the form itself */
+.auth-form-panel {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: var(--panel);
 }
-
 .auth-card {
   width: 100%;
-  max-width: 400px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  padding: 32px 28px;
+  max-width: 380px;
+  animation: auth-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes auth-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-card {
+    animation: none;
+  }
+}
+
+/* Compact brand mark shown above the form only on the mobile/no-panel
+   layout, so the app still feels branded with the illustration hidden. */
+.auth-form-panel > .auth-card > .brand {
+  display: none;
+}
+@media (max-width: 880px) {
+  .auth-form-panel > .auth-card > .brand {
+    display: flex;
+  }
 }
 
 .brand {
@@ -96,18 +264,21 @@ a:hover {
 }
 
 .auth-card h1 {
-  font-size: 20px;
-  margin: 0 0 4px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  color: var(--ink);
 }
 
 .auth-card .sub {
   color: var(--sub);
-  font-size: 13px;
-  margin: 0 0 22px;
+  font-size: 14px;
+  margin: 0 0 28px;
 }
 
 .field {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .field label {
@@ -120,15 +291,17 @@ a:hover {
 
 .field input {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  padding: 11px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
   background: #fff;
-  transition: border-color 0.15s ease;
+  font-size: 14.5px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .field input:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .field-row {
@@ -141,23 +314,30 @@ a:hover {
 
 .btn {
   width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border-radius: 9px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 14.5px;
   border: 1px solid transparent;
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.btn:active {
+  transform: translateY(1px);
 }
 
 .btn-primary {
   background: var(--accent);
   color: #fff;
+  box-shadow: 0 1px 2px rgba(200, 16, 38, 0.15);
 }
 .btn-primary:hover {
   background: #a80d1f;
+  box-shadow: 0 4px 14px rgba(200, 16, 38, 0.3);
 }
 .btn-primary:disabled {
-  background: #a9b6ee;
+  background: #f0a8b0;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .btn-ghost {
@@ -174,9 +354,10 @@ a:hover {
   border: 1px solid #f4c6c1;
   color: var(--danger);
   font-size: 12.5px;
-  padding: 9px 11px;
-  border-radius: 8px;
-  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  margin-bottom: 16px;
+  animation: auth-enter 0.25s ease;
 }
 
 .form-success {
@@ -184,29 +365,34 @@ a:hover {
   border: 1px solid #bfe8d5;
   color: var(--ok);
   font-size: 12.5px;
-  padding: 9px 11px;
-  border-radius: 8px;
-  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  margin-bottom: 16px;
+  animation: auth-enter 0.25s ease;
 }
 
 .auth-links {
   display: flex;
   justify-content: space-between;
-  margin-top: 16px;
-  font-size: 12.5px;
+  margin-top: 18px;
+  font-size: 13px;
   color: var(--sub);
+}
+.auth-links a {
+  font-weight: 600;
 }
 
 .stepper {
   display: flex;
   gap: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 .stepper .dot {
   flex: 1;
   height: 3px;
   border-radius: 2px;
   background: var(--line);
+  transition: background-color 0.2s ease;
 }
 .stepper .dot.active {
   background: var(--accent);
@@ -751,31 +937,62 @@ a:hover {
 }
 
 /* ---------- admin panel ---------- */
+.admin-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(20, 28, 50, 0.04);
+}
+
+.admin-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px;
+  flex-wrap: wrap;
+}
+.admin-card-head h2 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+.admin-card-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .admin-filters {
   display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
+  gap: 6px;
+  background: var(--bg);
+  padding: 4px;
+  border-radius: 999px;
+  width: fit-content;
 }
 .admin-filter-btn {
-  padding: 7px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: #fff;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
   color: var(--sub);
   font-size: 12.5px;
   font-weight: 600;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+.admin-filter-btn:hover:not(.active) {
+  color: var(--ink);
 }
 .admin-filter-btn.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  background: #fff;
+  color: var(--accent);
+  box-shadow: 0 1px 3px rgba(28, 35, 51, 0.1);
 }
 
 .admin-table-wrap {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
 }
 .admin-table {
   width: 100%;
@@ -784,61 +1001,276 @@ a:hover {
 }
 .admin-table th {
   text-align: left;
-  padding: 12px 16px;
+  padding: 12px 22px;
   background: var(--bg);
   color: var(--sub);
   font-weight: 600;
-  font-size: 11.5px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
+  border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
+  white-space: nowrap;
 }
 .admin-table td {
-  padding: 12px 16px;
+  padding: 14px 22px;
   border-bottom: 1px solid var(--line);
   color: var(--ink);
+  vertical-align: middle;
+}
+.admin-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+.admin-table tbody tr:hover {
+  background: var(--bg);
 }
 .admin-table tr:last-child td {
   border-bottom: none;
 }
+
+.admin-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.admin-avatar {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.admin-user-name {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 13.5px;
+  line-height: 1.35;
+}
+.admin-user-sub {
+  color: var(--sub);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.status-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-pill.active {
+  background: #e2f6ec;
+  color: #189a63;
+}
+.status-pill.inactive {
+  background: #fdeceb;
+  color: #e0473e;
+}
+
 .admin-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   justify-content: flex-end;
+  align-items: center;
 }
 .admin-text-btn {
   width: auto;
-  padding: 6px 12px;
+  padding: 6px 13px;
   font-size: 12px;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: 7px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--sub);
+  transition: transform 0.1s ease, opacity 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.admin-text-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.admin-text-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.admin-text-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.admin-icon-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--sub);
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+.admin-icon-btn:hover:not(:disabled) {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: var(--accent-soft);
+}
+.admin-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* ---------- modal ---------- */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(28, 35, 51, 0.45);
+  background: rgba(28, 35, 51, 0.5);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 300;
   padding: 20px;
+  animation: auth-enter 0.15s ease;
 }
 .modal-card {
   background: #fff;
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(28, 35, 51, 0.25);
+  padding: 30px;
   width: 100%;
   max-width: 400px;
+  animation: modal-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal-card {
+    animation: none;
+  }
 }
 .modal-card h2 {
   margin: 0 0 4px;
-  font-size: 19px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 .modal-card .sub {
   color: var(--sub);
   font-size: 13px;
   margin: 0 0 18px;
+}
+
+/* ---------- confirm modal ---------- */
+.confirm-modal-card {
+  max-width: 380px;
+  text-align: center;
+}
+.confirm-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+  background: #fdead0;
+  color: #c98a1b;
+}
+.confirm-icon-circle.danger {
+  background: var(--accent-soft);
+  color: var(--danger);
+}
+.confirm-modal-card h2 {
+  text-align: center;
+}
+.confirm-modal-card .sub {
+  text-align: center;
+}
+.confirm-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(214, 69, 69, 0.2);
+}
+.btn-danger:hover:not(:disabled) {
+  background: #b93737;
+  box-shadow: 0 4px 14px rgba(214, 69, 69, 0.3);
+}
+.btn-danger:disabled {
+  background: #eba9a9;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ---------- admin pagination ---------- */
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.admin-pagination-info {
+  color: var(--sub);
+  font-size: 12.5px;
+}
+.admin-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.admin-page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--sub);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+.admin-page-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.admin-page-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.admin-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

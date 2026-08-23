@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import Logo from "../components/Logo";
+import AuthLayout from "../components/AuthLayout";
 
 // Step 1: enter email, we send a one-time code.
 // Step 2: enter the code, which signs the person in via a recovery session.
@@ -95,97 +96,98 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="auth-shell">
-      <div className="auth-card">
-        <Logo />
-        <h1>Reset your password</h1>
-        <p className="sub">
-          {step === STEPS.EMAIL && "We'll email you a one-time code."}
-          {step === STEPS.OTP && `Enter the code sent to ${email}.`}
-          {step === STEPS.NEW_PASSWORD && "Choose a new password."}
-        </p>
+    <AuthLayout
+      headline="Forgot your password? It happens."
+      tagline="We'll get you a fresh one in three quick steps."
+    >
+      <Logo />
+      <h1>Reset your password</h1>
+      <p className="sub">
+        {step === STEPS.EMAIL && "We'll email you a one-time code."}
+        {step === STEPS.OTP && `Enter the code sent to ${email}.`}
+        {step === STEPS.NEW_PASSWORD && "Choose a new password."}
+      </p>
 
-        <div className="stepper">
-          <div className={`dot ${step >= STEPS.EMAIL ? "active" : ""}`} />
-          <div className={`dot ${step >= STEPS.OTP ? "active" : ""}`} />
-          <div className={`dot ${step >= STEPS.NEW_PASSWORD ? "active" : ""}`} />
-        </div>
-
-        {error && <div className="form-error">{error}</div>}
-
-        {step === STEPS.EMAIL && (
-          <form onSubmit={handleSendCode}>
-            <div className="field">
-              <label htmlFor="email">Email address</label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="jane@example.com"
-              />
-            </div>
-            <button className="btn btn-primary" type="submit" disabled={loading}>
-              {loading ? <span className="spinner" /> : "Send code"}
-            </button>
-          </form>
-        )}
-
-        {step === STEPS.OTP && (
-          <form onSubmit={handleVerifyOtp}>
-            <div className="field">
-              <label htmlFor="otp">Verification code</label>
-              <input
-                id="otp"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="6-digit code"
-              />
-            </div>
-            <button className="btn btn-primary" type="submit" disabled={loading}>
-              {loading ? <span className="spinner" /> : "Verify code"}
-            </button>
-          </form>
-        )}
-
-        {step === STEPS.NEW_PASSWORD && (
-          <form onSubmit={handleSetNewPassword}>
-            <div className="field">
-              <label htmlFor="newPassword">New password</label>
-              <input
-                id="newPassword"
-                type="password"
-                autoComplete="new-password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="At least 8 characters"
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="confirmPassword">Confirm new password</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repeat password"
-              />
-            </div>
-            <button className="btn btn-primary" type="submit" disabled={loading}>
-              {loading ? <span className="spinner" /> : "Reset password"}
-            </button>
-          </form>
-        )}
-
-        <div className="auth-links">
-          <Link to="/login">Back to login</Link>
-        </div>
+      <div className="stepper">
+        <div className={`dot ${step >= STEPS.EMAIL ? "active" : ""}`} />
+        <div className={`dot ${step >= STEPS.OTP ? "active" : ""}`} />
+        <div className={`dot ${step >= STEPS.NEW_PASSWORD ? "active" : ""}`} />
       </div>
-    </div>
+
+      {error && <div className="form-error">{error}</div>}
+
+      {step === STEPS.EMAIL && (
+        <form onSubmit={handleSendCode}>
+          <div className="field">
+            <label htmlFor="email">Email address</label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="jane@example.com"
+            />
+          </div>
+          <button className="btn btn-primary" type="submit" disabled={loading}>
+            {loading ? <span className="spinner" /> : "Send code"}
+          </button>
+        </form>
+      )}
+
+      {step === STEPS.OTP && (
+        <form onSubmit={handleVerifyOtp}>
+          <div className="field">
+            <label htmlFor="otp">Verification code</label>
+            <input
+              id="otp"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="6-digit code"
+            />
+          </div>
+          <button className="btn btn-primary" type="submit" disabled={loading}>
+            {loading ? <span className="spinner" /> : "Verify code"}
+          </button>
+        </form>
+      )}
+
+      {step === STEPS.NEW_PASSWORD && (
+        <form onSubmit={handleSetNewPassword}>
+          <div className="field">
+            <label htmlFor="newPassword">New password</label>
+            <input
+              id="newPassword"
+              type="password"
+              autoComplete="new-password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="At least 8 characters"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="confirmPassword">Confirm new password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Repeat password"
+            />
+          </div>
+          <button className="btn btn-primary" type="submit" disabled={loading}>
+            {loading ? <span className="spinner" /> : "Reset password"}
+          </button>
+        </form>
+      )}
+
+      <div className="auth-links">
+        <Link to="/login">Back to login</Link>
+      </div>
+    </AuthLayout>
   );
 }
