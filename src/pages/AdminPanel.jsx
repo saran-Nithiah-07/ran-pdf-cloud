@@ -45,6 +45,24 @@ function escapeForIlike(value) {
   return value.replace(/[%_,]/g, (c) => `\\${c}`);
 }
 
+// supabase-js's functions.invoke() gives a useless generic message
+// ("Edge Function returned a non-2xx status code") for any non-2xx
+// response — the function's *actual* error message (e.g. "email already
+// registered") lives in fnErr.context, which is the raw Response object,
+// not something invoke() surfaces on its own. This pulls the real
+// message back out so the person sees what actually went wrong.
+async function getFunctionErrorMessage(fnErr, fallback) {
+  try {
+    if (fnErr?.context && typeof fnErr.context.json === "function") {
+      const body = await fnErr.context.json();
+      if (body?.error) return body.error;
+    }
+  } catch {
+    // Response body wasn't JSON, or already consumed — fall through.
+  }
+  return fnErr?.message || fallback;
+}
+
 export default function AdminPanel() {
   const { profile } = useAuth();
   const [users, setUsers] = useState([]);
@@ -193,9 +211,8 @@ export default function AdminPanel() {
         body: { userId: confirmUser.id },
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
-      if (fnErr) throw fnErr;
+      if (fnErr) throw new Error(await getFunctionErrorMessage(fnErr, "Couldn't delete that user."));
       if (data?.error) throw new Error(data.error);
-
       setConfirmUser(null);
       await loadUsers();
     } catch (err) {
@@ -229,7 +246,7 @@ export default function AdminPanel() {
         },
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
-      if (fnErr) throw fnErr;
+      if (fnErr) throw new Error(await getFunctionErrorMessage(fnErr, "Couldn't send that invite."));
       if (data?.error) throw new Error(data.error);
 
       setInviteSuccess(`Invite sent to ${inviteEmail.trim()}.`);
