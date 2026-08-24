@@ -19,12 +19,61 @@ import Logo from "../components/Logo";
 
 const EMPTY_VALUE = [{ type: "p", children: [{ text: "" }] }];
 
-const TEXT_COLORS = ["#1c2333", "#c81026", "#1d7a4c", "#2952cc", "#a8650d", "#7b3ee0"];
-const HIGHLIGHT_COLORS = ["#fff3b0", "#ffd6d6", "#d4f4dd", "#d6e4ff", "#f0d6ff"];
 const EMOJIS = [
   "😀", "😂", "😊", "😍", "🤔", "😅", "🙌", "👍", "👎", "🙏",
   "🔥", "🎉", "✅", "❌", "⭐", "❤️", "💡", "📌", "📎", "⚠️"
 ];
+const TEXT_COLORS = ["#1c2333", "#c81026", "#1d7a4c", "#2952cc", "#a8650d", "#7b3ee0"];
+const HIGHLIGHT_COLORS = ["#fff3b0", "#ffd6d6", "#d4f4dd", "#d6e4ff", "#f0d6ff"];
+
+const TEXT_STYLES = [
+  { key: "h1", label: "Heading 1", icon: "H1" },
+  { key: "h2", label: "Heading 2", icon: "H2" },
+  { key: "h3", label: "Heading 3", icon: "H3" },
+  { key: "blockquote", label: "Quote", icon: "❝" }
+];
+
+const ALIGN_OPTIONS = [
+  { key: "left", label: "Align left" },
+  { key: "center", label: "Align center" },
+  { key: "right", label: "Align right" },
+  { key: "justify", label: "Justify" }
+];
+
+const ICONS = {
+  undo: <path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />,
+  redo: <path d="M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13" />,
+  download: <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />,
+  pdf: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></>,
+  bold: <path d="M6 4h6a3.5 3.5 0 0 1 0 7H6zM6 11h7a3.5 3.5 0 0 1 0 7H6z" />,
+  italic: <path d="M10 4h6M6 20h6M13 4 9 20" />,
+  underline: <><path d="M6 4v6a5 5 0 0 0 10 0V4" /><path d="M5 20h12" /></>,
+  strike: <><path d="M6 12h11" /><path d="M8 6.5c1-1.2 2.6-2 4.2-2 2.4 0 4 1.2 4 3S15 10 12 10" /><path d="M8 17.5c1 1.2 2.6 2 4.2 2 2.4 0 4-1.2 4-3" /></>,
+  code: <path d="m8 6-5 6 5 6M16 6l5 6-5 6" />,
+  alignLeft: <><path d="M4 6h16M4 12h10M4 18h13" /></>,
+  alignCenter: <><path d="M4 6h16M7 12h10M5 18h14" /></>,
+  alignRight: <><path d="M4 6h16M10 12h10M7 18h13" /></>,
+  alignJustify: <><path d="M4 6h16M4 12h16M4 18h16" /></>,
+  bulletList: <><circle cx="5" cy="6" r="1.3" /><circle cx="5" cy="12" r="1.3" /><circle cx="5" cy="18" r="1.3" /><path d="M10 6h10M10 12h10M10 18h10" /></>,
+  numberList: <><path d="M4 6h1.5M4 12h1.5M4 18h1.5" /><path d="M10 6h10M10 12h10M10 18h10" /></>,
+  indent: <><path d="M4 6h16M10 12h10M4 18h16" /><path d="m4 10 3 2-3 2" /></>,
+  outdent: <><path d="M4 6h16M10 12h10M4 18h16" /><path d="m7 10-3 2 3 2" /></>,
+  link: <path d="M9 15 15 9M11 6l1-1a4 4 0 0 1 6 6l-1 1M13 18l-1 1a4 4 0 0 1-6-6l1-1" />,
+  table: <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18M3 15h18M9 4v16M15 4v16" /></>,
+  image: <><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9.5" r="1.5" /><path d="m21 16-5-5-4 4-3-3-6 6" /></>,
+  smile: <><circle cx="12" cy="12" r="9" /><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" /></>,
+  chevronDown: <path d="m6 9 6 6 6-6" />,
+  close: <path d="M18 6 6 18M6 6l12 12" />
+};
+
+function Icon({ name, size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {ICONS[name]}
+    </svg>
+  );
+}
+
 
 // Small components so useIndentButton/useOutdentButton (real React hooks)
 // can be called at the top level, not inside a plain click handler.
@@ -32,7 +81,7 @@ function IndentButton() {
   const { props } = useIndentButton();
   return (
     <button className="tb" title="Indent" {...props}>
-      →|
+      <Icon name="indent" />
     </button>
   );
 }
@@ -40,7 +89,7 @@ function OutdentButton() {
   const { props } = useOutdentButton();
   return (
     <button className="tb" title="Outdent" {...props}>
-      |←
+      <Icon name="outdent" />
     </button>
   );
 }
@@ -199,7 +248,21 @@ export default function DocEditor() {
     setOpenPopover({ type, top: rect.bottom + 6, left: rect.left });
   }
 
-  function handleInsertLink() {    const url = window.prompt("Link URL:");
+  function handleTextStyle(key) {
+    if (key === "h1") editor.tf.h1.toggle();
+    else if (key === "h2") editor.tf.h2.toggle();
+    else if (key === "h3") editor.tf.h3.toggle();
+    else if (key === "blockquote") editor.tf.blockquote.toggle();
+    setOpenPopover(null);
+  }
+
+  function handleAlign(key) {
+    editor.tf.textAlign.setNodes(key);
+    setOpenPopover(null);
+  }
+
+  function handleInsertLink() {
+    const url = window.prompt("Link URL:");
     if (!url) return;
     upsertLink(editor, { url });
   }
@@ -247,120 +310,174 @@ export default function DocEditor() {
           </div>
 
           <div className="doc-toolbar">
-          <button className="tb" onClick={() => editor.tf.h1.toggle()} title="Heading 1">H1</button>
-          <button className="tb" onClick={() => editor.tf.h2.toggle()} title="Heading 2">H2</button>
-          <button className="tb" onClick={() => editor.tf.h3.toggle()} title="Heading 3">H3</button>
-          <button className="tb" onClick={() => editor.tf.blockquote.toggle()} title="Blockquote">&ldquo;&rdquo;</button>
-          <span className="doc-toolbar-sep" />
-
-          <button className="tb" style={{ fontWeight: 700 }} onClick={() => editor.tf.toggleMark("bold")} title="Bold">B</button>
-          <button className="tb" style={{ fontStyle: "italic" }} onClick={() => editor.tf.toggleMark("italic")} title="Italic">I</button>
-          <button className="tb" style={{ textDecoration: "underline" }} onClick={() => editor.tf.toggleMark("underline")} title="Underline">U</button>
-          <button className="tb" style={{ textDecoration: "line-through" }} onClick={() => editor.tf.toggleMark("strikethrough")} title="Strikethrough">S</button>
-          <button className="tb" style={{ fontFamily: "monospace" }} onClick={() => editor.tf.toggleMark("code")} title="Code">{"</>"}</button>
-          <span className="doc-toolbar-sep" />
-
-          <button className="tb" onClick={() => editor.tf.textAlign.setNodes("left")} title="Align left">⯇</button>
-          <button className="tb" onClick={() => editor.tf.textAlign.setNodes("center")} title="Align center">☰</button>
-          <button className="tb" onClick={() => editor.tf.textAlign.setNodes("right")} title="Align right">⯈</button>
-          <button className="tb" onClick={() => editor.tf.textAlign.setNodes("justify")} title="Justify">▤</button>
-          <OutdentButton />
-          <IndentButton />
-          <span className="doc-toolbar-sep" />
-
-          <button className="tb" onClick={() => toggleList(editor, { listStyleType: ListStyleType.Disc })} title="Bulleted list">•—</button>
-          <button className="tb" onClick={() => toggleList(editor, { listStyleType: ListStyleType.Decimal })} title="Numbered list">1.—</button>
-          <span className="doc-toolbar-sep" />
-
-          <div className="doc-popover-wrap" onClick={(e) => e.stopPropagation()}>
-            <button className="tb" title="Text color" onClick={(e) => openPopoverAt("color", e)}>
-              A
+            <button className="tb" onClick={() => editor.undo()} title="Undo">
+              <Icon name="undo" />
             </button>
-            {openPopover?.type === "color" && (
-              <div className="doc-popover" style={{ position: "fixed", top: openPopover.top, left: openPopover.left }}>
-                {TEXT_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    className="doc-swatch"
-                    style={{ background: c }}
-                    onClick={() => {
-                      editor.tf.color.addMark(c);
-                      setOpenPopover(null);
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="doc-popover-wrap" onClick={(e) => e.stopPropagation()}>
-            <button className="tb" title="Highlight" onClick={(e) => openPopoverAt("highlight", e)}>
-              ▧
+            <button className="tb" onClick={() => editor.redo()} title="Redo">
+              <Icon name="redo" />
             </button>
-            {openPopover?.type === "highlight" && (
-              <div className="doc-popover" style={{ position: "fixed", top: openPopover.top, left: openPopover.left }}>
-                {HIGHLIGHT_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    className="doc-swatch"
-                    style={{ background: c }}
-                    onClick={() => {
-                      editor.tf.backgroundColor.addMark(c);
-                      setOpenPopover(null);
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+            <span className="doc-toolbar-sep" />
 
-          <button className="tb" onClick={handleInsertLink} title="Insert link">🔗</button>
-          <button className="tb" onClick={() => insertTable(editor, { rowCount: 3, colCount: 3 })} title="Insert table">▦</button>
-          <button className="tb" onClick={() => imageInputRef.current?.click()} title="Insert image">🖼</button>
-          <input
-            ref={imageInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleImageChange}
-          />
+            <div className="doc-popover-wrap" onClick={(e) => e.stopPropagation()}>
+              <button className="tb tb-wide" title="Text style" onClick={(e) => openPopoverAt("textstyle", e)}>
+                Text <Icon name="chevronDown" size={13} />
+              </button>
+              {openPopover?.type === "textstyle" && (
+                <div className="doc-popover doc-menu" style={{ position: "fixed", top: openPopover.top, left: openPopover.left }}>
+                  {TEXT_STYLES.map((s) => (
+                    <button key={s.key} className="doc-menu-item" onClick={() => handleTextStyle(s.key)}>
+                      <span className="doc-menu-item-icon">{s.icon}</span> {s.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <span className="doc-toolbar-sep" />
 
-          <div className="doc-popover-wrap" onClick={(e) => e.stopPropagation()}>
-            <button className="tb" title="Emoji" onClick={(e) => openPopoverAt("emoji", e)}>
-              🙂
+            <button className="tb" style={{ fontWeight: 700 }} onClick={() => editor.tf.toggleMark("bold")} title="Bold">
+              <Icon name="bold" />
             </button>
-            {openPopover?.type === "emoji" && (
-              <div
-                className="doc-popover doc-emoji-grid"
-                style={{ position: "fixed", top: openPopover.top, left: openPopover.left }}
-              >
-                {EMOJIS.map((em) => (
-                  <button
-                    key={em}
-                    className="doc-emoji-btn"
-                    onClick={() => {
-                      editor.tf.insertText(em);
-                      setOpenPopover(null);
-                    }}
-                  >
-                    {em}
-                  </button>
-                ))}
-              </div>
-            )}
+            <button className="tb" onClick={() => editor.tf.toggleMark("italic")} title="Italic">
+              <Icon name="italic" />
+            </button>
+            <button className="tb" onClick={() => editor.tf.toggleMark("underline")} title="Underline">
+              <Icon name="underline" />
+            </button>
+            <button className="tb" onClick={() => editor.tf.toggleMark("strikethrough")} title="Strikethrough">
+              <Icon name="strike" />
+            </button>
+            <button className="tb" onClick={() => editor.tf.toggleMark("code")} title="Code">
+              <Icon name="code" />
+            </button>
+            <span className="doc-toolbar-sep" />
+
+            <div className="doc-popover-wrap" onClick={(e) => e.stopPropagation()}>
+              <button className="tb" title="Text color" onClick={(e) => openPopoverAt("color", e)}>
+                <span style={{ fontWeight: 700 }}>A</span>
+              </button>
+              {openPopover?.type === "color" && (
+                <div className="doc-popover" style={{ position: "fixed", top: openPopover.top, left: openPopover.left }}>
+                  {TEXT_COLORS.map((c) => (
+                    <button
+                      key={c}
+                      className="doc-swatch"
+                      style={{ background: c }}
+                      onClick={() => {
+                        editor.tf.color.addMark(c);
+                        setOpenPopover(null);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="doc-popover-wrap" onClick={(e) => e.stopPropagation()}>
+              <button className="tb" title="Highlight" onClick={(e) => openPopoverAt("highlight", e)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="m9 11 6-6 4 4-6 6-4-4Z" /><path d="m5 21 3-3M13 15l-2 2 4 4 2-2" />
+                </svg>
+              </button>
+              {openPopover?.type === "highlight" && (
+                <div className="doc-popover" style={{ position: "fixed", top: openPopover.top, left: openPopover.left }}>
+                  {HIGHLIGHT_COLORS.map((c) => (
+                    <button
+                      key={c}
+                      className="doc-swatch"
+                      style={{ background: c }}
+                      onClick={() => {
+                        editor.tf.backgroundColor.addMark(c);
+                        setOpenPopover(null);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+            <span className="doc-toolbar-sep" />
+
+            <div className="doc-popover-wrap" onClick={(e) => e.stopPropagation()}>
+              <button className="tb" title="Alignment" onClick={(e) => openPopoverAt("align", e)}>
+                <Icon name="alignLeft" />
+                <Icon name="chevronDown" size={13} />
+              </button>
+              {openPopover?.type === "align" && (
+                <div className="doc-popover doc-menu-row" style={{ position: "fixed", top: openPopover.top, left: openPopover.left }}>
+                  <button className="tb" title="Align left" onClick={() => handleAlign("left")}><Icon name="alignLeft" /></button>
+                  <button className="tb" title="Align center" onClick={() => handleAlign("center")}><Icon name="alignCenter" /></button>
+                  <button className="tb" title="Align right" onClick={() => handleAlign("right")}><Icon name="alignRight" /></button>
+                  <button className="tb" title="Justify" onClick={() => handleAlign("justify")}><Icon name="alignJustify" /></button>
+                </div>
+              )}
+            </div>
+
+            <button className="tb" onClick={() => toggleList(editor, { listStyleType: ListStyleType.Disc })} title="Bulleted list">
+              <Icon name="bulletList" />
+            </button>
+            <button className="tb" onClick={() => toggleList(editor, { listStyleType: ListStyleType.Decimal })} title="Numbered list">
+              <Icon name="numberList" />
+            </button>
+            <OutdentButton />
+            <IndentButton />
+            <span className="doc-toolbar-sep" />
+
+            <button className="tb" onClick={handleInsertLink} title="Insert link">
+              <Icon name="link" />
+            </button>
+            <button className="tb" onClick={() => insertTable(editor, { rowCount: 3, colCount: 3 })} title="Insert table">
+              <Icon name="table" />
+            </button>
+            <button className="tb" onClick={() => imageInputRef.current?.click()} title="Insert image">
+              <Icon name="image" />
+            </button>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleImageChange}
+            />
+
+            <div className="doc-popover-wrap" onClick={(e) => e.stopPropagation()}>
+              <button className="tb" title="Emoji" onClick={(e) => openPopoverAt("emoji", e)}>
+                <Icon name="smile" />
+              </button>
+              {openPopover?.type === "emoji" && (
+                <div
+                  className="doc-popover doc-emoji-grid"
+                  style={{ position: "fixed", top: openPopover.top, left: openPopover.left }}
+                >
+                  {EMOJIS.map((em) => (
+                    <button
+                      key={em}
+                      className="doc-emoji-btn"
+                      onClick={() => {
+                        editor.tf.insertText(em);
+                        setOpenPopover(null);
+                      }}
+                    >
+                      {em}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
         <div className="doc-topbar-right">
           {status && <span className="doc-status">{status}</span>}
-          <button className="tb" onClick={handleDownloadDocx}>Download DOCX</button>
-          <button className="tb" onClick={handleExportPdf} disabled={exportingPdf}>
-            {exportingPdf ? "Exporting…" : "Export to PDF"}
+          <button className="tb tb-icon-label" onClick={handleDownloadDocx} title="Download as Word">
+            <Icon name="download" /> .docx
+          </button>
+          <button className="tb tb-icon-label" onClick={handleExportPdf} disabled={exportingPdf} title="Export as PDF">
+            <Icon name="pdf" /> {exportingPdf ? "Exporting…" : "PDF"}
           </button>
           <button className="tb primary" onClick={handleSave} disabled={saving}>
             {saving ? "Saving…" : "Save"}
           </button>
-          <button className="tb" onClick={() => navigate("/dashboard")}>Close</button>
+          <button className="doc-close-btn" onClick={() => navigate("/dashboard")} title="Close">
+            <Icon name="close" />
+          </button>
         </div>
         </header>
 

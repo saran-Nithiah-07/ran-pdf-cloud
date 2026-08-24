@@ -26,6 +26,16 @@ function parseFilename(disposition) {
  */
 export function convertFile(toolSlug, file, onUploadProgress, onXhrReady) {
   return new Promise(async (resolve, reject) => {
+    if (!CONVERTER_URL) {
+      reject(
+        new Error(
+          "The converter service isn't configured (VITE_CONVERTER_URL is missing). " +
+            "Check your .env file and restart the dev server."
+        )
+      );
+      return;
+    }
+
     const {
       data: { session }
     } = await supabase.auth.getSession();
