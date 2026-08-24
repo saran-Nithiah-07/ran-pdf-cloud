@@ -7,6 +7,14 @@ import ConfirmModal from "../components/ConfirmModal";
 const FILTERS = ["all", "active", "inactive"];
 const PAGE_SIZE = 10;
 
+const CONVERSION_LABELS = {
+  "word-to-pdf": "Word → PDF",
+  "pptx-to-pdf": "PPTX → PDF",
+  "excel-to-pdf": "Excel → PDF",
+  "pdf-to-word": "PDF → Word",
+  "pdf-to-pptx": "PDF → PPTX"
+};
+
 const AVATAR_PALETTE = [
   { bg: "#fde3e1", fg: "#e0473e" },
   { bg: "#fdead0", fg: "#c98a1b" },
@@ -59,6 +67,28 @@ export default function AdminPanel() {
 
   const [confirmUser, setConfirmUser] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  const [conversionCounts, setConversionCounts] = useState(null);
+  const [conversionCountsError, setConversionCountsError] = useState("");
+
+  // Loaded once on mount — this is a simple lifetime-total count display,
+  // not something that needs to react to filters/pagination like the user
+  // table does.
+  useEffect(() => {
+    async function loadConversionCounts() {
+      const { data, error: rpcError } = await supabase.rpc("get_conversion_counts");
+      if (rpcError) {
+        setConversionCountsError(rpcError.message);
+        return;
+      }
+      const counts = {};
+      for (const row of data || []) {
+        counts[row.conversion_type] = row.total;
+      }
+      setConversionCounts(counts);
+    }
+    loadConversionCounts();
+  }, []);
 
   // Debounce free-text search so we're not hitting Supabase on every
   // keystroke — the actual filtering happens server-side in loadUsers().
@@ -253,6 +283,28 @@ export default function AdminPanel() {
         </div>
 
         {error && <div className="form-error">{error}</div>}
+
+        <div className="admin-card" style={{ marginBottom: 20 }}>
+          <div className="admin-card-head">
+            <h2>Conversions</h2>
+          </div>
+          <div className="stats-grid">
+            {conversionCountsError ? (
+              <p style={{ color: "var(--sub)", padding: "0 22px 22px" }}>
+                Couldn't load conversion counts.
+              </p>
+            ) : conversionCounts === null ? (
+              <p style={{ color: "var(--sub)", padding: "0 22px 22px" }}>Loading…</p>
+            ) : (
+              Object.entries(CONVERSION_LABELS).map(([key, label]) => (
+                <div className="stat-tile" key={key}>
+                  <span className="stat-tile-value">{conversionCounts[key] || 0}</span>
+                  <span className="stat-tile-label">{label}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
 
         <div className="admin-card">
           <div className="admin-card-head">

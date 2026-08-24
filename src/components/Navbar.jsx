@@ -17,8 +17,13 @@ export default function Navbar() {
   return (
     <div className="navbar">
       <Logo />
+
       <div className="user-chip">
-        <div className="avatar">{initial}</div>
+        {/* Profile page isn't built yet — this is just the visual entry
+            point for now, no click behavior until that's specified. */}
+        <div className="avatar" title={displayName}>
+          {initial}
+        </div>
         <span>{displayName}</span>
         <button className="btn-ghost" style={{ width: "auto", padding: "6px 12px" }} onClick={handleSignOut}>
           Sign out
