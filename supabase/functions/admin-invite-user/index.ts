@@ -104,6 +104,18 @@ Deno.serve(async (req) => {
       status: "active"
     });
     if (profileErr) {
+      // The auth account already exists at this point (inviteUserByEmail
+      // succeeded above) — without this, a failed profile insert leaves
+      // a permanent orphan: an auth.users row with no matching profile,
+      // invisible in the admin panel, but still blocking that email from
+      // ever being invited again ("already registered"). Roll it back so
+      // a failed invite fails cleanly instead of leaving debris behind.
+      const { error: rollbackErr } = await admin.auth.admin.deleteUser(invited.user.id);
+      if (rollbackErr) {
+        console.error(
+          `Orphaned auth user after failed profile insert — manual cleanup needed for ${invited.user.id} (${email}): ${rollbackErr.message}`
+        );
+      }
       return new Response(JSON.stringify({ error: profileErr.message }), {
         status: 400,
         headers: corsHeaders

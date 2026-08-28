@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/useAuth";
 import Navbar from "../components/Navbar";
 import ConfirmModal from "../components/ConfirmModal";
+import CreditDetailsModal from "../components/CreditDetailsModal";
 
 const FILTERS = ["all", "active", "inactive"];
 const PAGE_SIZE = 10;
@@ -76,6 +77,7 @@ export default function AdminPanel() {
   const [busyId, setBusyId] = useState(null);
 
   const [showInvite, setShowInvite] = useState(false);
+  const [showCreditDetails, setShowCreditDetails] = useState(false);
   const [inviteName, setInviteName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteMobile, setInviteMobile] = useState("");
@@ -304,6 +306,9 @@ export default function AdminPanel() {
         <div className="admin-card" style={{ marginBottom: 20 }}>
           <div className="admin-card-head">
             <h2>Conversions</h2>
+            <button className="btn-ghost" style={{ width: "auto", padding: "8px 14px" }} onClick={() => setShowCreditDetails(true)}>
+              View credit details
+            </button>
           </div>
           <div className="stats-grid">
             {conversionCountsError ? (
@@ -497,6 +502,8 @@ export default function AdminPanel() {
         onConfirm={confirmDelete}
         onCancel={() => !deleting && setConfirmUser(null)}
       />
+
+      <CreditDetailsModal open={showCreditDetails} onClose={() => setShowCreditDetails(false)} />
 
       {showInvite && (
         <div className="modal-overlay" onClick={() => setShowInvite(false)}>

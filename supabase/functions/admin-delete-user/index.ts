@@ -16,6 +16,12 @@ const corsHeaders = {
 
 const BUCKET = "user-files";
 
+// Must match ADMIN_BACKING_EMAIL in src/lib/adminConfig.js. Kept as a
+// plain constant here (Edge Functions can't import from the frontend's
+// src/ directory) — if you ever change the admin's backing email, update
+// both places.
+const PROTECTED_ADMIN_EMAIL = "admin@pdfinity.internal";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -70,7 +76,7 @@ Deno.serve(async (req) => {
 
     const { data: target, error: targetErr } = await admin
       .from("profiles")
-      .select("status")
+      .select("status, email")
       .eq("id", userId)
       .single();
     if (targetErr || !target) {
@@ -78,6 +84,18 @@ Deno.serve(async (req) => {
         status: 404,
         headers: corsHeaders
       });
+    }
+    if (target.email === PROTECTED_ADMIN_EMAIL) {
+      // Defense against a repeat of the incident that motivated this
+      // guard: the hardcoded-login admin account can never be deleted
+      // through this function, no matter who calls it or how. This
+      // can't stop deletion via direct SQL/dashboard access, which
+      // bypasses this code entirely — only real database permissions
+      // could do that — but it does close off this specific path.
+      return new Response(
+        JSON.stringify({ error: "This account can't be deleted." }),
+        { status: 403, headers: corsHeaders }
+      );
     }
     if (target.status !== "inactive") {
       return new Response(

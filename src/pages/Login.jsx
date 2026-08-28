@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import { ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_BACKING_EMAIL } from "../lib/adminConfig";
 import AuthLayout from "../components/AuthLayout";
 import Logo from "../components/Logo";
 
@@ -27,6 +28,30 @@ export default function Login() {
     setLoading(true);
     try {
       const input = username.trim();
+
+      // Hardcoded admin path — checked first, entirely independent of
+      // any `profiles` row's role/status. This exists so a deleted or
+      // mis-edited profile can never lock the admin out again. Still
+      // signs into a real Supabase account under the hood (required for
+      // RLS-gated admin queries to work), just skips the fragile
+      // username-lookup and role-check steps to get there.
+      if (input === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        const { error: adminSignInErr } = await supabase.auth.signInWithPassword({
+          email: ADMIN_BACKING_EMAIL,
+          password: ADMIN_PASSWORD
+        });
+        if (adminSignInErr) {
+          setError(
+            "Admin login isn't set up correctly on the backend yet — contact the developer."
+          );
+          setLoading(false);
+          return;
+        }
+        navigate("/admin");
+        setLoading(false);
+        return;
+      }
+
       let loginEmail;
 
       if (input.includes("@")) {
