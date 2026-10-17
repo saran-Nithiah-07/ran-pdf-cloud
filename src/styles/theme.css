@@ -1816,3 +1816,74 @@ a:hover {
     transition: none;
   }
 }
+
+/* ---------- DocEditor: docx-editor.dev host chrome ---------- */
+.doc-editor-shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.doc-editor-back-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+}
+.doc-editor-back-btn:hover {
+  opacity: 0.75;
+}
+.doc-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.doc-editor-status {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sub);
+}
+.doc-editor-error {
+  margin: auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+/* ID selector (not a class) so this is guaranteed to out-rank any
+   scoped selector the packaged editor's own CSS uses inside its
+   title-bar slot (e.g. `.some-host-class button`, which has HIGHER
+   specificity than a single class like `.doc-editor-save-btn` even
+   under `!important` — specificity is compared before the `!important`
+   tie is broken by source order, which is what let the button keep
+   losing). An ID beats any realistic class-combination selector. */
+#doc-editor-save-btn {
+  all: unset !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 18px !important;
+  border-radius: 9px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  background: var(--accent, #c81026) !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease !important;
+}
+#doc-editor-save-btn:hover:not(:disabled) {
+  background: #a80d1f !important;
+}
+#doc-editor-save-btn:disabled {
+  background: #f0a8b0 !important;
+  cursor: not-allowed !important;
+}

@@ -15,5 +15,5 @@
 // same value as ADMIN_PASSWORD below. Login.jsx signs into that real
 // account behind the scenes when these two values match what's typed.
 export const ADMIN_USERNAME = "Admin";
-export const ADMIN_PASSWORD = "CHANGE-ME-Str0ng-Password!";
+export const ADMIN_PASSWORD = "Admin@123";
 export const ADMIN_BACKING_EMAIL = "admin@pdfinity.internal";

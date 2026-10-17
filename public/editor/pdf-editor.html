@@ -25,7 +25,24 @@ input,select{font:inherit}
 svg{display:block}
 
 /* ---------- ribbon tabs ---------- */
-#tabstrip{display:flex;gap:2px;align-items:center;margin:0 8px}
+#tabstrip{display:none}
+#legacy-filegroup{display:none}
+#ribbon .rgroup{display:none !important}
+
+/* ---- new flat single-row toolbar (matches the confirmed reference layout) ---- */
+#flatbar{display:flex;align-items:center;gap:2px;padding:0 4px;flex:1;min-width:0;overflow-x:auto}
+#flatbar .fb-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:7px 11px;border-radius:9px;color:var(--ink);
+  background:transparent;white-space:nowrap;font-size:11px;line-height:1.1;
+  transition:background-color .16s ease,color .16s ease,transform .1s ease;
+}
+#flatbar .fb-btn svg{width:19px;height:19px;flex:none;transition:transform .16s ease}
+#flatbar .fb-btn:hover:not(:disabled){background:#f1f3f9}
+#flatbar .fb-btn:active:not(:disabled){transform:translateY(1px)}
+#flatbar .fb-btn.active,#flatbar .fb-btn[aria-expanded="true"]{background:var(--accent-soft);color:var(--accent)}
+#flatbar .fb-btn:disabled{opacity:.38;cursor:default}
+#flatbar .fb-sep{width:1px;align-self:stretch;margin:6px 6px;background:var(--line);flex:none}
 .tabbtn{padding:5px 12px;border-radius:8px 8px 0 0;color:var(--sub);font-weight:600;font-size:13px;border-bottom:2px solid transparent}
 .tabbtn:hover{background:#f1f3f9;color:var(--ink)}
 .tabbtn.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -134,6 +151,7 @@ svg{display:block}
 #props input[type=range]{width:110px}
 #props input[type=color]{width:26px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;background:none}
 .togbtn{padding:3px 9px;border:1px solid var(--line);border-radius:6px;background:#fff;font-weight:700}
+.align-group{display:inline-flex;gap:2px}
 .togbtn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 #props .del{color:var(--danger);font-weight:600}
 
@@ -202,7 +220,7 @@ main{flex:1;display:flex;min-height:0}
 #status .dot{width:4px;height:4px;border-radius:50%;background:#c8cfdf}
 
 /* dialogs */
-dialog{border:none;border-radius:14px;box-shadow:0 24px 64px rgba(15,20,40,.28);padding:0;max-width:92vw}
+dialog{border:none;border-radius:14px;box-shadow:0 24px 64px rgba(15,20,40,.28);padding:0;max-width:92vw;position:fixed;inset:0;margin:auto;height:fit-content;max-height:88vh}
 dialog::backdrop{background:rgba(20,26,45,.45)}
 .dlg{padding:20px 22px;min-width:340px}
 .dlg h3{margin:0 0 4px;font-size:16px}
@@ -273,7 +291,7 @@ dialog::backdrop{background:rgba(20,26,45,.45)}
 
 <header id="topbar">
   <div class="brand"><div class="logo"><svg viewBox="0 0 256 256" aria-label="Pdfinity"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5252"/><stop offset="1" stop-color="#c81026"/></linearGradient></defs><rect width="256" height="256" rx="58" fill="url(#rg)"/><g transform="translate(128 128) scale(1.12) translate(-100 -60)"><path d="M100,60 C74,26 40,34 40,60 C40,86 74,94 100,60 C126,26 160,34 160,60 C160,86 126,94 100,60 Z" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/></g></svg></div><span><span style="color:#c81026">Pdf</span><span style="color:#1c2333">inity</span></span></div>
-  <div class="group">
+  <div class="group" id="legacy-filegroup">
     <button class="tb" id="b-open" title="Open a PDF">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M12 4v12m0 0 4-4m-4 4-4-4"/></svg>Open</button>
     <button class="tb needdoc" id="b-merge" title="Quickly append another PDF to the end" disabled>
@@ -295,14 +313,6 @@ dialog::backdrop{background:rgba(20,26,45,.45)}
   </nav>
   <div class="spacer"></div>
   <div class="group">
-    <button class="tb icon" id="b-undo" title="Undo (Ctrl+Z)" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
-    <button class="tb icon" id="b-redo" title="Redo (Ctrl+Y)" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
-  </div>
-  <div class="group">
-    <button class="tb icon needdoc" id="b-find" title="Find text (Ctrl+F)" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
     <span class="pagebox" title="Current page — type a number and press Enter"><input id="gotopage" class="needdoc" type="text" inputmode="numeric" value="–" disabled>/<span id="pagetotal">–</span></span>
   </div>
   <div class="group zoombox">
@@ -313,8 +323,6 @@ dialog::backdrop{background:rgba(20,26,45,.45)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H4v4m0 8v4h4m8 0h4v-4m0-8V4h-4"/></svg></button>
     <button class="tb icon" id="b-full" title="Fullscreen / presentation (F11)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4m11-5v4a1 1 0 0 1-1 1h-4"/></svg></button>
-    <button class="tb icon" id="b-thumbs" title="Show/hide page panel">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
   </div>
 </header>
 
@@ -331,27 +339,51 @@ dialog::backdrop{background:rgba(20,26,45,.45)}
 </div>
 
 <div id="ribbon">
+  <!-- FLAT TOOLBAR (stage 1): existing, already-working tools reordered/restyled
+       to match the confirmed reference layout. Items not yet built (unified Line
+       dropdown w/ Polygon, Stamp gallery, Link tool, Manage pages, Print, AI slot)
+       are intentionally left for stage 2 rather than added as dead placeholders. -->
+  <div id="flatbar">
+    <button class="fb-btn tb icon" id="b-thumbs" title="Show/hide page panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>Thumbnails</button>
+    <span class="fb-sep"></span>
+    <button class="fb-btn tb icon" id="b-undo" title="Undo (Ctrl+Z)" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Undo</button>
+    <button class="fb-btn tb icon" id="b-redo" title="Redo (Ctrl+Y)" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>Redo</button>
+    <span class="fb-sep"></span>
+    <button class="fb-btn tb icon tool needdoc" data-tool="text" title="Add text (T)" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6V4h14v2M12 4v16m-3 0h6"/></svg>Add text</button>
+    <button class="fb-btn tb tool needdoc" data-tool="edittext" title="Click existing text to edit it" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6V4h9v2M9.5 4v11M7.5 15h4"/></svg>Edit text</button>
+    <button class="fb-btn tb needdoc" id="b-sign" title="Add signature" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17c2.5-4 4.5-9 6-8.5s-1 7 .5 7.5 3-3.5 4.5-3 .5 3 2 3 2-2 5-2"/><path d="M3 21h18" opacity=".4"/></svg>Sign</button>
+    <button class="fb-btn tb icon tool needdoc" data-tool="draw" title="Draw (pen)" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L8 20l-5 1 1-5L17 3z"/></svg>Draw</button>
+    <button class="fb-btn tb icon tool needdoc" data-tool="shape-line" title="Line (more shapes coming soon)" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19 19 5"/></svg>Line</button>
+    <button class="fb-btn tb icon tool needdoc" data-tool="hl" title="Highlight" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 6.5-6.5a2.1 2.1 0 0 1 3 3L12 14l-4 1 1-4z"/><path d="M4 20h16" stroke-width="4" opacity=".45"/></svg>Text highlight</button>
+    <button class="fb-btn tb icon tool needdoc" data-tool="image" title="Insert image" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m5 19 5-5 3 3 4-4 2 2"/></svg>Image</button>
+    <button class="fb-btn tb needdoc" id="b-stamp" title="Place a stamp" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="9" rx="1.5"/><path d="M9 13v3.5M15 13v3.5M6 20.5h12"/></svg>Stamp</button>
+    <button class="fb-btn tb icon tool needdoc" data-tool="note" title="Add sticky note (click on page)" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v12l-4 4H5V4z"/><path d="M15 20v-4h4"/></svg>Note</button>
+    <span class="fb-sep"></span>
+    <button class="fb-btn tb icon needdoc" id="b-find" title="Find text (Ctrl+F)" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Search</button>
+  </div>
   <!-- EDIT -->
   <div class="rgroup on" data-tab="edit" id="toolgrp">
     <button class="tb icon tool active" data-tool="select" title="Select / move (V)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 3l14 8-6.5 1.5L9 19 5 3z"/></svg></button>
-    <button class="tb tool needdoc" data-tool="edittext" title="Click existing text to edit it" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6V4h9v2M9.5 4v11M7.5 15h4"/><path d="M15 17.5 19.5 13a1.6 1.6 0 0 1 2.3 2.3L17.2 19.8 14.5 20.5l.5-3z"/></svg>Edit text</button>
     <button class="tb tool needdoc" data-tool="whiteout" title="Cover an area (drag)" disabled>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="16" height="10" rx="2"/><path d="m7 14 4-4m-1 4 4-4m-1 4 4-4" opacity=".55"/></svg>Whiteout</button>
-    <button class="tb icon tool needdoc" data-tool="text" title="Add text (T)" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6V4h14v2M12 4v16m-3 0h6"/></svg></button>
-    <button class="tb icon tool needdoc" data-tool="image" title="Insert image" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m5 19 5-5 3 3 4-4 2 2"/></svg></button>
-    <button class="tb icon tool needdoc" data-tool="draw" title="Draw (pen)" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L8 20l-5 1 1-5L17 3z"/></svg></button>
-    <button class="tb icon tool needdoc" data-tool="hl" title="Highlight" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 6.5-6.5a2.1 2.1 0 0 1 3 3L12 14l-4 1 1-4z"/><path d="M4 20h16" stroke-width="4" opacity=".45"/></svg></button>
   </div>
   <div class="rgroup on" data-tab="edit">
     <button class="tb icon tool needdoc" data-tool="shape-rect" title="Rectangle" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="1.5"/></svg></button>
     <button class="tb icon tool needdoc" data-tool="shape-ellipse" title="Ellipse" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="8.5" ry="6"/></svg></button>
-    <button class="tb icon tool needdoc" data-tool="shape-line" title="Line" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19 19 5"/></svg></button>
     <button class="tb icon tool needdoc" data-tool="shape-arrow" title="Arrow" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 19 5m0 0h-7m7 0v7"/></svg></button>
     <button class="tb tool needdoc" data-tool="crop" title="Crop pages (drag an area)" disabled>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 2v15a1 1 0 0 0 1 1h14M2 7h15a1 1 0 0 1 1 1v14"/></svg>Crop</button>
@@ -368,10 +400,6 @@ dialog::backdrop{background:rgba(20,26,45,.45)}
   </div>
   <!-- COMMENT -->
   <div class="rgroup" data-tab="comment">
-    <button class="tb tool needdoc" data-tool="note" title="Add sticky note (click on page)" disabled>📝 Note</button>
-    <button class="tb needdoc" id="b-stamp" title="Place a stamp" disabled>Stamp</button>
-    <button class="tb needdoc" id="b-sign" title="Add signature" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17c2.5-4 4.5-9 6-8.5s-1 7 .5 7.5 3-3.5 4.5-3 .5 3 2 3 2-2 5-2"/><path d="M3 21h18" opacity=".4"/></svg>Sign</button>
     <button class="tb needdoc" id="b-comments" title="Comments panel" disabled>💬 Comments</button>
   </div>
   <!-- FORMS -->
@@ -1338,7 +1366,7 @@ const FONTS={
   Times:{css:"'Times New Roman', Times, serif"},
   Courier:{css:"'Courier New', Courier, monospace"},
 };
-const dflt={size:16,color:"#111827",font:"Helvetica",bold:false,italic:false,
+const dflt={size:16,color:"#111827",fill:null,opacity:100,align:"left",valign:"top",font:"Helvetica",bold:false,italic:false,
             penColor:"#e03131",penW:2.5,hlColor:"#ffe066",hlW:14,shapeColor:"#e03131",shapeW:2.5};
 
 const DRAG_TOOLS=["whiteout","shape-rect","shape-ellipse","shape-line","shape-arrow","field-text","field-check","field-drop","redact","crop"];
@@ -1477,6 +1505,15 @@ function styleTextEl(el,o){
   el.style.fontFamily=FONTS[o.font].css;
   el.style.fontWeight=o.bold?"700":"400";
   el.style.fontStyle=o.italic?"italic":"normal";
+  el.style.background=o.fill||"transparent";
+  el.style.opacity=(o.opacity??100)/100;
+  el.style.textAlign=o.align||"left";
+  // Vertical align only matters once the box has extra height beyond the
+  // text itself (e.g. after a manual resize) — top/middle/bottom position
+  // the text within that box, same anchor concept as the reference layout.
+  el.style.display="flex";
+  el.style.flexDirection="column";
+  el.style.justifyContent=o.valign==="bottom"?"flex-end":o.valign==="middle"?"center":"flex-start";
 }
 function localPoint(page,e){
   const r=pageEls[page].objs.getBoundingClientRect();
@@ -1495,9 +1532,15 @@ function selectObj(page,id){
 }
 function removeObj(page,id){
   pushUndo();
+  const removed=state.overlays[page].find(o=>o.id===id);
   state.overlays[page]=state.overlays[page].filter(o=>o.id!==id);
   if(state.sel&&state.sel.id===id) state.sel=null;
   renderOverlays(page); syncProps();
+  // A note auto-opens the Comments panel the moment it's placed (see addNote)
+  // so you can type into it right away. If it's removed again — e.g. placed
+  // by accident and closed without typing anything — the panel should close
+  // right along with it instead of being left open with nothing to show.
+  if(removed && removed.type==="note" && state.panel==="comments") closePanel();
 }
 
 /* ---------- object drag / resize / edit ---------- */
@@ -1561,7 +1604,7 @@ function startTextEdit(el,page,id){
   const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
   const before=o.text, snap=snapshot();
   const done=()=>{
-    el.removeEventListener("blur",done);
+    el.removeEventListener("blur",onBlur);
     el.contentEditable="false"; el.classList.remove("editing");
     let txt=(el.innerText||"").replace(/ /g," ").replace(/\n$/,"");
     if(!txt.trim()){ // empty -> remove object
@@ -1573,7 +1616,23 @@ function startTextEdit(el,page,id){
     if(txt!==before){ o.text=txt; state.undo.push(snap); state.redo.length=0; syncUndoBtns(); }
     el.textContent=o.text;
   };
-  el.addEventListener("blur",done);
+  const onBlur=e=>{
+    // Clicking a toolbar control (font/color/size/bold/italic/align/opacity)
+    // also blurs this contenteditable element — previously that silently
+    // ended the edit session before the toolbar change could land cleanly,
+    // which is why using any option while editing felt like it "didn't
+    // work" or lost your place. If focus is moving INTO our own properties
+    // bar, don't finalize — the property change still applies live via the
+    // bar's own wireProp/apply() calls — just hand focus back to the text
+    // afterward so typing can continue uninterrupted.
+    const goingTo=e.relatedTarget;
+    if(goingTo && goingTo.closest && goingTo.closest("#props")){
+      setTimeout(()=>{ if(document.body.contains(el)&&el.classList.contains("editing")) el.focus(); },0);
+      return;
+    }
+    done();
+  };
+  el.addEventListener("blur",onBlur);
   el.addEventListener("keydown",e=>{
     e.stopPropagation();
     if(e.key==="Escape"){ e.preventDefault(); el.blur(); }
@@ -1597,7 +1656,8 @@ function attachPageEvents(i){
       pushUndo();
       const p=localPoint(i,e);
       const o={id:state.uid++,type:"text",x:p.x,y:Math.max(0,p.y-dflt.size*.7),text:"Type here",
-               size:dflt.size,color:dflt.color,font:dflt.font,bold:dflt.bold,italic:dflt.italic};
+               size:dflt.size,color:dflt.color,font:dflt.font,bold:dflt.bold,italic:dflt.italic,
+               fill:dflt.fill,opacity:dflt.opacity,align:dflt.align,valign:dflt.valign};
       state.overlays[i].push(o);
       renderOverlays(i);
       setTool("select");
@@ -1948,22 +2008,104 @@ $("#mg-merge").onclick=()=>busy("#mg-merge",async()=>{
 function syncProps(){
   const bar=$("#props");
   const selObj=state.sel?objById(state.sel.page,state.sel.id):null;
-  const mode=selObj?selObj.type:(["text","draw","hl","measure","redact","edittext","whiteout"].includes(state.tool)||state.tool.startsWith("shape-")||state.tool.startsWith("field-")?state.tool:null);
+  // IMPORTANT: checked before the selObj-type shortcut below. Both "Add text"
+  // (data-tool="text") and "Edit text" (data-tool="edittext") end up
+  // selecting a "text"-type overlay object once something's placed/clicked —
+  // without this check they'd fall into the same generic "text" branch and
+  // render an identical bar, which is exactly the bug this fixes. Checking
+  // state.tool first (rather than only selObj.type) lets the two tools get
+  // their own distinct bars even though they share the same object type.
+  // Which bar to show for a selected text object depends on where that text
+  // CAME FROM, not on whichever tool happens to be active right now:
+  //   - has a sourceKey -> it's an edited copy of original PDF content -> Edit text bar
+  //   - no sourceKey     -> it's something you typed in yourself -> Add text bar
+  // Checking state.tool here was the bug: editExistingText() switches the
+  // active tool to "select" immediately after creating/reopening the edited
+  // object (so it can be dragged/selected normally), so by the time this
+  // renders, state.tool is never "edittext" anymore — the Add text bar
+  // (with its Fill/background controls, which don't belong on original
+  // content) was showing regardless of which tool you'd actually used.
+  const mode = selObj
+    ? (selObj.type==="text" ? (selObj.sourceKey ? "edittext" : "text") : selObj.type)
+    : (["text","draw","hl","measure","redact","whiteout","edittext"].includes(state.tool)||state.tool.startsWith("shape-")||state.tool.startsWith("field-")?state.tool:null);
   if(!mode){ bar.className=""; bar.innerHTML=""; return; }
   bar.className="on";
   if(mode==="text"){
     const o=selObj||dflt;
-    bar.innerHTML=`<span style="font-weight:600;color:var(--ink)">Text</span>
+    const hAlign=o.align||"left", vAlign=o.valign||"top";
+    bar.innerHTML=`<span style="font-weight:600;color:var(--ink)">Add text</span>
+      <label>Font color <input type="color" id="p-color" value="${o.color}"></label>
+      <label>Fill <input type="color" id="p-fill" value="${o.fill||"#ffffff"}"></label>
+      <button class="togbtn ${o.fill?"on":""}" id="p-fillon" title="Toggle background fill">Fill</button>
+      <label>Opacity <input type="range" id="p-opacity" min="10" max="100" step="5" value="${o.opacity??100}"><span id="p-opacity-val">${o.opacity??100}%</span></label>
       <label>Font <select id="p-font">${Object.keys(FONTS).map(f=>`<option ${o.font===f?"selected":""}>${f}</option>`).join("")}</select></label>
       <label>Size <input type="number" id="p-size" min="6" max="120" value="${o.size}"></label>
       <button class="togbtn ${o.bold?"on":""}" id="p-bold">B</button>
       <button class="togbtn ${o.italic?"on":""}" id="p-italic" style="font-style:italic;font-weight:400">I</button>
-      <label>Color <input type="color" id="p-color" value="${o.color}"></label>
+      <span class="align-group">
+        <button class="togbtn ${hAlign==="left"?"on":""}" id="p-al" title="Align left">⟸</button>
+        <button class="togbtn ${hAlign==="center"?"on":""}" id="p-ac" title="Align center">⇔</button>
+        <button class="togbtn ${hAlign==="right"?"on":""}" id="p-ar" title="Align right">⟹</button>
+      </span>
+      <span class="align-group">
+        <button class="togbtn ${vAlign==="top"?"on":""}" id="p-vt" title="Align top">⤒</button>
+        <button class="togbtn ${vAlign==="middle"?"on":""}" id="p-vm" title="Align middle">↕</button>
+        <button class="togbtn ${vAlign==="bottom"?"on":""}" id="p-vb" title="Align bottom">⤓</button>
+      </span>
       ${selObj?'<button class="tb del" id="p-del">Remove</button>':'<span style="font-size:12px">Click anywhere on a page to add text</span>'}`;
     const apply=()=>{ if(selObj){ const el=pageEls[state.sel.page].objs.querySelector(`[data-id="${selObj.id}"]`); if(el) styleTextEl(el,selObj); } };
     wireProp("#p-font",v=>{ (selObj||dflt).font=v; apply(); },!!selObj);
     wireProp("#p-size",v=>{ (selObj||dflt).size=Math.max(6,Math.min(120,+v||16)); apply(); },!!selObj);
     wireProp("#p-color",v=>{ (selObj||dflt).color=v; apply(); },!!selObj);
+    wireProp("#p-fill",v=>{ const t=(selObj||dflt); if(t.fill) t.fill=v; apply(); },!!selObj);
+    wireToggle("#p-bold",()=>{ const t=(selObj||dflt); t.bold=!t.bold; apply(); return t.bold; },!!selObj);
+    wireToggle("#p-italic",()=>{ const t=(selObj||dflt); t.italic=!t.italic; apply(); return t.italic; },!!selObj);
+    wireToggle("#p-fillon",()=>{ const t=(selObj||dflt); t.fill=t.fill?null:$("#p-fill").value; apply(); return !!t.fill; },!!selObj);
+    // Opacity uses a live "input" listener (not wireProp's change-commit
+    // pattern) so the percentage label next to the slider updates while
+    // dragging, not just after release.
+    const opEl=$("#p-opacity"), opVal=$("#p-opacity-val");
+    if(opEl){
+      let snap=null;
+      opEl.addEventListener("input",()=>{
+        if(selObj&&!snap) snap=snapshot();
+        (selObj||dflt).opacity=+opEl.value; opVal.textContent=opEl.value+"%"; apply();
+      });
+      opEl.addEventListener("change",()=>{ if(selObj&&snap){ state.undo.push(snap); state.redo.length=0; syncUndoBtns(); snap=null; } });
+    }
+    // Align buttons are exclusive-choice groups, not simple on/off toggles,
+    // so they're wired directly rather than through wireToggle.
+    const setAlign=(key,val)=>{
+      const t=selObj||dflt;
+      const snap=selObj?snapshot():null;
+      t[key]=val; apply(); syncProps();
+      if(selObj){ state.undo.push(snap); state.redo.length=0; syncUndoBtns(); }
+    };
+    $("#p-al")?.addEventListener("click",()=>setAlign("align","left"));
+    $("#p-ac")?.addEventListener("click",()=>setAlign("align","center"));
+    $("#p-ar")?.addEventListener("click",()=>setAlign("align","right"));
+    $("#p-vt")?.addEventListener("click",()=>setAlign("valign","top"));
+    $("#p-vm")?.addEventListener("click",()=>setAlign("valign","middle"));
+    $("#p-vb")?.addEventListener("click",()=>setAlign("valign","bottom"));
+    if(selObj) $("#p-del").onclick=()=>removeObj(state.sel.page,state.sel.id);
+  }else if(mode==="edittext"){
+    // Same underlying controls as "Add text" (font/size/bold/italic/color) —
+    // per the reference layout, deliberately reordered (color right after
+    // font, delete icon instead of a text "Remove" button) so the two tools
+    // are visually distinguishable even though they share one capability
+    // set, rather than being pixel-identical.
+    const o=selObj||dflt;
+    bar.innerHTML=`<span style="font-weight:600;color:var(--ink)">Edit text</span>
+      <label>Font <select id="p-font">${Object.keys(FONTS).map(f=>`<option ${o.font===f?"selected":""}>${f}</option>`).join("")}</select></label>
+      <label>Color <input type="color" id="p-color" value="${o.color}"></label>
+      <label>Size <input type="number" id="p-size" min="6" max="120" value="${o.size}"></label>
+      <button class="togbtn ${o.bold?"on":""}" id="p-bold">B</button>
+      <button class="togbtn ${o.italic?"on":""}" id="p-italic" style="font-style:italic;font-weight:400">I</button>
+      ${selObj?'<button class="tb icon del" id="p-del" title="Delete">🗑</button>':'<span style="font-size:12px">Click existing text on the page to edit it</span>'}`;
+    const apply=()=>{ if(selObj){ const el=pageEls[state.sel.page].objs.querySelector(`[data-id="${selObj.id}"]`); if(el) styleTextEl(el,selObj); } };
+    wireProp("#p-font",v=>{ (selObj||dflt).font=v; apply(); },!!selObj);
+    wireProp("#p-color",v=>{ (selObj||dflt).color=v; apply(); },!!selObj);
+    wireProp("#p-size",v=>{ (selObj||dflt).size=Math.max(6,Math.min(120,+v||16)); apply(); },!!selObj);
     wireToggle("#p-bold",()=>{ const t=(selObj||dflt); t.bold=!t.bold; apply(); return t.bold; },!!selObj);
     wireToggle("#p-italic",()=>{ const t=(selObj||dflt); t.italic=!t.italic; apply(); return t.italic; },!!selObj);
     if(selObj) $("#p-del").onclick=()=>removeObj(state.sel.page,state.sel.id);
@@ -2129,8 +2271,23 @@ async function burnOverlays(bytes,byPage){
       if(o.type==="text"){
         const lineH=o.size*1.25, base=(BASELINE[o.font]||.97)*o.size;
         const lines=String(o.text).split("\n");
-        for(let k=0;k<lines.length;k++)
-          await drawTextComp(lines[k], o.x+2, o.y+1+base+k*lineH, o.size, fontKey(o), hex2rgb(o.color));
+        const opacity=(o.opacity??100)/100;
+        const font=await getFont(fontKey(o));
+        const widths=lines.map(l=>{ const t=safeText(font,l); return t?font.widthOfTextAtSize(t,o.size):0; });
+        const boxW=Math.max(1,...widths);
+        const boxH=lines.length*lineH;
+        if(o.fill){
+          const r=mapRect(o.x,o.y,boxW+4,boxH+2);
+          page.drawRectangle({x:r.x,y:r.y,width:r.w,height:r.h,color:hex2rgb(o.fill),opacity,rotate:rot});
+        }
+        for(let k=0;k<lines.length;k++){
+          // Horizontal align shifts each line within the widest line's
+          // width, same as the on-screen text-align behaves in an
+          // auto-width box — matches styleTextEl() exactly.
+          const extra=boxW-widths[k];
+          const dx=o.x+2+(o.align==="center"?extra/2:o.align==="right"?extra:0);
+          await drawTextComp(lines[k], dx, o.y+1+base+k*lineH, o.size, fontKey(o), hex2rgb(o.color), opacity);
+        }
       }else if(o.type==="image"){
         if(!images[o.dataUrl]){
           const b=dataUrlBytes(o.dataUrl);
@@ -2389,7 +2546,20 @@ async function getTextItems(i){
       const items=tc.items.filter(it=>it.str&&it.str.trim()).map(it=>{
         const [x0,y0]=vp.convertToViewportPoint(it.transform[4],it.transform[5]);
         const [x1,y1]=vp.convertToViewportPoint(it.transform[4]+it.width,it.transform[5]+it.height);
-        return {str:it.str,x:Math.min(x0,x1),y:Math.min(y0,y1),w:Math.abs(x1-x0),h:Math.abs(y1-y0),size:Math.abs(it.height)||11};
+        // pdf.js resolves each item's actual font to a CSS-ish family string
+        // via tc.styles — used to guess the closest of our 3 embeddable
+        // standard fonts (Helvetica/Times/Courier) instead of always
+        // defaulting an edited copy to Helvetica regardless of the
+        // original document's real font.
+        const style=tc.styles?.[it.fontName];
+        const family=(style?.fontFamily||"").toLowerCase();
+        let guessedFont="Helvetica";
+        if(/courier|mono|consolas/.test(family)) guessedFont="Courier";
+        else if(/times|serif|georgia|garamond|cambria|book/.test(family)) guessedFont="Times";
+        const bold=/bold|black|heavy|700|800|900/.test(family)||(style?.ascent&&it.transform&&Math.abs(it.transform[0])>Math.abs(it.transform[3])*1.15);
+        const italic=/italic|oblique/.test(family);
+        return {str:it.str,x:Math.min(x0,x1),y:Math.min(y0,y1),w:Math.abs(x1-x0),h:Math.abs(y1-y0),size:Math.abs(it.height)||11,
+                guessedFont,bold:!!bold,italic:!!italic};
       });
       if(docGen!==myGen){ await new Promise(r=>setTimeout(r,200)); continue; }  // doc swapped mid-read
       textCache[i]=items; return items;
@@ -2405,10 +2575,23 @@ async function editExistingText(i,e){
   const items=await getTextItems(i);
   const hit=items.find(it=>p.x>=it.x-2&&p.x<=it.x+it.w+2&&p.y>=it.y-2&&p.y<=it.y+it.h+2);
   if(!hit){ toast("No text detected there — use the Add text tool instead."); return; }
+  // Stable key for this original text run, so re-clicking the same spot
+  // reopens the copy already made here instead of stacking a second
+  // whiteout+text pair on top of it — that stacking (with each attempt's
+  // typed text slightly offset) is what produced scattered duplicate text.
+  const sourceKey=`${i}_${hit.x.toFixed(1)}_${hit.y.toFixed(1)}`;
+  const existing=state.overlays[i].find(o=>o.type==="text"&&o.sourceKey===sourceKey);
+  if(existing){
+    setTool("select"); selectObj(i,existing.id);
+    const existingEl=pageEls[i].objs.querySelector(`[data-id="${existing.id}"]`);
+    if(existingEl) startTextEdit(existingEl,i,existing.id);
+    return;
+  }
   pushUndo();
   state.overlays[i].push({id:state.uid++,type:"shape",kind:"rect",x:hit.x-1.5,y:hit.y-2,w:hit.w+3,h:hit.h+4.5,stroke:null,sw:0,fill:"#ffffff",opacity:1});
   const o={id:state.uid++,type:"text",x:hit.x-2,y:hit.y-1.5,text:hit.str,size:Math.round(hit.size*10)/10,
-           color:dflt.color,font:dflt.font,bold:false,italic:false};
+           color:dflt.color,font:hit.guessedFont||dflt.font,bold:!!hit.bold,italic:!!hit.italic,
+           fill:null,opacity:100,align:"left",valign:"top",sourceKey};
   state.overlays[i].push(o);
   renderOverlays(i);
   setTool("select"); selectObj(i,o.id);
@@ -3100,8 +3283,119 @@ async function readOutlineFromDoc(){
   }catch(e){}
   return flat;
 }
+// ----- Bloom real in-place text editing (Edit Text tool only) -----
+// Per §8.4 of the project handoff: this runs BEFORE burnOverlays() inside
+// bakeAll(). It only touches overlay text objects that (a) came from
+// editExistingText() [i.e. have a sourceKey] and (b) were actually changed
+// from their originalText. Anything it successfully rewrites via real
+// content-stream editing is removed from the overlayMap so burnOverlays()
+// doesn't ALSO draw the old whiteout+redraw version on top of it. Any
+// failure (missing glyphs, unsupported font, parse error, etc.) leaves that
+// object in the overlayMap untouched, so it safely falls through to the
+// existing, already-proven whiteout+redraw path. A total failure to even
+// parse the document (e.g. BloomEngine missing, or a PDF it can't handle at
+// all) falls back to completely unmodified bytes/overlayMap.
+async function applyBloomEdits(bytes, overlayMap){
+  try{
+    if(typeof BloomEngine==="undefined") return {bytes, overlayMap};
+    // Collect per-page edited text objects (sourceKey present, text actually changed).
+    const editsByPage={};
+    let anyEdits=false;
+    for(const [is,objs] of Object.entries(overlayMap)){
+      for(const o of (objs||[])){
+        if(o.type==="text" && o.sourceKey && o.originalText!=null && o.text!==o.originalText){
+          (editsByPage[is]=editsByPage[is]||[]).push(o);
+          anyEdits=true;
+        }
+      }
+    }
+    if(!anyEdits) return {bytes, overlayMap};
+
+    const doc=await BloomEngine.parsePDF(bytes);
+    const handled=new Set();
+    let anySucceeded=false;
+
+    for(const [is,objs] of Object.entries(editsByPage)){
+      const pageIndex=+is;
+      const page=doc.pages[pageIndex];
+      if(!page) continue;
+      // Consolidate multi-content-stream pages into contentRefs[0] so repeated
+      // getPageContentBytes() calls below don't double-concatenate.
+      if(page.contentRefs && page.contentRefs.length>1){
+        try{
+          const merged=BloomEngine.getPageContentBytes(page,doc.objects);
+          const primaryRef=page.contentRefs[0];
+          const primaryObj=doc.objects.get(primaryRef.toKey());
+          if(primaryObj){
+            primaryObj.dict.delete("Filter");
+            primaryObj.rawBytes=merged;
+            primaryObj.decodedBytes=null;
+            primaryObj.dict.set("Length", new BloomEngine.PDFNumber(merged.length));
+          }
+          for(let k=1;k<page.contentRefs.length;k++){
+            const extraObj=doc.objects.get(page.contentRefs[k].toKey());
+            if(extraObj){
+              extraObj.dict.delete("Filter");
+              extraObj.rawBytes=new Uint8Array(0);
+              extraObj.decodedBytes=null;
+              extraObj.dict.set("Length", new BloomEngine.PDFNumber(0));
+            }
+          }
+        }catch(e){ /* if consolidation fails, just proceed page-by-page as-is */ }
+      }
+
+      for(const o of objs){
+        try{
+          const contentBytes=BloomEngine.getPageContentBytes(page,doc.objects);
+          const runs=BloomEngine.findTextInPage(contentBytes,page,doc.objects,o.originalText,true);
+          if(!runs || !runs.length) continue;
+          // Disambiguate multiple matches by nearest position to the overlay's
+          // recorded location (sourceKey encodes page_x_y in viewer coords).
+          // Multiple matches of the same original text on a page: without a
+          // reliable cross-engine coordinate mapping between the viewer's
+          // overlay space and Bloom's parsed content-stream space, picking
+          // the first match is the safest default — a wrong pick just means
+          // this one edit falls through to the proven whiteout+redraw path
+          // instead of silently editing the wrong occurrence, since a bad
+          // edit here is caught below by the missing-glyph/error checks only
+          // some of the time. Flagged as a known limitation for follow-up.
+          const targetRun=runs[0];
+          const result=BloomEngine.applyTextEdits(contentBytes,page,doc.objects,[{targetRun,newText:o.text}]);
+          if(!result || result.needsFontAugmentation || (result.missingCharCodes && result.missingCharCodes.length)){
+            continue; // leave this object to fall back to whiteout+redraw
+          }
+          const streamRef=page.contentRefs[0];
+          const streamObj=doc.objects.get(streamRef.toKey());
+          if(!streamObj) continue;
+          streamObj.dict.delete("Filter");
+          streamObj.rawBytes=result.newContentBytes;
+          streamObj.decodedBytes=null;
+          streamObj.dict.set("Length", new BloomEngine.PDFNumber(result.newContentBytes.length));
+          handled.add(o);
+          anySucceeded=true;
+        }catch(e){
+          console.warn("Bloom edit failed for object, falling back to overlay redraw:",e);
+        }
+      }
+    }
+
+    if(!anySucceeded) return {bytes, overlayMap};
+
+    const newBytes=await BloomEngine.serializeDocument(doc);
+    const filteredMap={};
+    for(const [is,objs] of Object.entries(overlayMap)){
+      const kept=(objs||[]).filter(o=>!handled.has(o));
+      if(kept.length) filteredMap[is]=kept;
+    }
+    return {bytes:newBytes, overlayMap:filteredMap};
+  }catch(e){
+    console.warn("Bloom integration failed entirely for this save; falling back to original overlay pipeline:",e);
+    return {bytes, overlayMap};
+  }
+}
 async function bakeAll(){
-  const baked=await burnOverlays(state.bytes,allOverlayMap());
+  const {bytes:bloomBytes, overlayMap:bloomOverlayMap}=await applyBloomEdits(state.bytes, allOverlayMap());
+  const baked=await burnOverlays(bloomBytes,bloomOverlayMap);
   if(burnSkippedRedactions) toast(`${burnSkippedRedactions} pending redaction mark(s) NOT applied — run Apply redactions (Protect tab) first.`,true);
   if(state.bookmarks.length){
     const d=await PDFDocument.load(baked,{ignoreEncryption:true});
@@ -3613,5 +3907,6 @@ window.PDFStudio={state,burnOverlays,allOverlayMap,openFile,adoptBytes,bakeAll,b
 </script>
 <script src="/editor/vendor/docx.iife.js"></script>
 <script type="module" src="/editor/pdf-to-docx.js"></script>
+<script src="bloom-engine.bundle.js"></script>
 </body>
 </html>

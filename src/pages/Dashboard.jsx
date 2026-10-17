@@ -214,12 +214,31 @@ export default function Dashboard() {
     uploadFile(e.dataTransfer.files?.[0]);
   }
 
-  function handleOpen(file) {
+  async function handleOpen(file) {
     if (file.file_type === "docx") {
       navigate(`/doc-editor?fileId=${file.id}`);
-    } else {
-      window.location.href = `/editor/pdf-editor.html?fileId=${file.id}`;
+      return;
     }
+
+    // Hand off to Bloom (editor.pdfinity.cloud), a separate deployment.
+    // Bloom can't read our Supabase session (different origin), so we
+    // generate a short-lived signed URL to the file here — while we're
+    // still authenticated — and pass that + the filename along. Bloom
+    // fetches it itself and loads it exactly like a dropped file.
+    const { data, error: signErr } = await supabase.storage
+      .from("user-files")
+      .createSignedUrl(file.storage_path, 300); // 5 minutes, one-time use is enough
+
+    if (signErr || !data?.signedUrl) {
+      setError("Couldn't open this file right now. Please try again.");
+      return;
+    }
+
+    const params = new URLSearchParams({
+      src: data.signedUrl,
+      name: file.file_name
+    });
+    window.location.href = `https://editor.pdfinity.cloud/?${params.toString()}`;
   }
 
   function startRename(file) {
